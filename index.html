@@ -45,6 +45,57 @@
     .project{background:#020617;padding:20px;border-radius:16px}
 
     .project img{padding-top:50px;width:95%;height: 75%; border-radius:16px}
+    .skills-grid {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 30px;
+    }
+
+    .skill-card {
+      background: #020617;
+      border-radius: 20px;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .skill-card img {
+      width: 60px;
+      height: 60px;
+    }
+
+    .skill-card span {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    /* ===== Projects ===== */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .project {
+      background: #020617;
+      padding: 20px;
+      border-radius: 16px;
+    }
+
+    .project img {
+      width: 100%;
+      border-radius: 12px;
+    }
 
     form{max-width:500px;margin:40px auto;display:flex;flex-direction:column;gap:16px}
     input,textarea{padding:14px;border-radius:12px;border:none;font-family:'Poppins'}
@@ -78,15 +129,32 @@
   <h2 data-aos="fade-up">About Us</h2>
   <p data-aos="fade-up" data-aos-delay="200">We built our personal portfolio website, fast and responsive with clean UI and smooth animations.</p>
 </section>
-<section id="skills" class="skills">
+<section id="skills">
   <h2 data-aos="fade-up">Skills</h2>
+
   <div class="skills-grid">
-    <div class="skill" data-aos="flip-left">HTML</div>
-    <div class="skill" data-aos="flip-left">CSS</div>
-    <div class="skill" data-aos="flip-left">Python</div>
-    <div class="skill" data-aos="flip-left">JavaScript</div>
+    <div class="skill-card">
+      <img src="html.svg" alt="HTML">
+      <span>HTML</span>
+    </div>
+
+    <div class="skill-card">
+      <img src="css.svg" alt="CSS">
+      <span>CSS</span>
+    </div>
+
+    <div class="skill-card">
+      <img src="python.svg" alt="Python">
+      <span>Python</span>
+    </div>
+
+    <div class="skill-card">
+      <img src="js.png" alt="JavaScript">
+      <span>JavaScript</span>
+    </div>
   </div>
 </section>
+
 <section id="projects" class="projects">
   <h2 data-aos="fade-up">Projects</h2>
   <div class="project-grid">
@@ -113,6 +181,7 @@
 </script>
 </body>
 </html>
+
 
 
 
