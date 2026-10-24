@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="hi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>स्वास्थ्य सारांश (Swasthya Saaransh) - स्मार्ट हेल्थ केयर पोर्टल</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.4.13/dist/easy.qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        body { font-family: 'Hind', 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #16a34a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.15) 0%, rgba(2, 132, 199, 0.05) 50%, transparent 80%);
+        }
+        @media print {
+            .no-print, header, nav, #login-section, #overview-view, #tab-nav-bar, #feedback-view, #records-view, #sms-toast, #telemed-modal, #ayush-modal, #profile-modal { 
+                display: none !important; 
+            }
+            #app-container { display: block !important; }
+            #main-portal { display: block !important; }
+            #intake-view { display: block !important; }
+            #chatbot-col { display: none !important; }
+            #slip-col { width: 100% !important; display: block !important; }
+            #printable-medical-report { 
+                display: block !important; 
+                width: 100% !important; 
+                border: 1.5px solid #334155 !important;
+                box-shadow: none !important;
+                padding: 16px !important;
+            }
+        }
+        .chat-scroll::-webkit-scrollbar { width: 4px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen selection:bg-teal-500 selection:text-white">
+
+    <!-- SMS Toast Simulator -->
+    <div id="sms-toast" class="fixed top-4 right-4 z-50 transform translate-y-[-160%] transition-transform duration-500 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-teal-500 max-w-sm flex items-start gap-3 no-print">
+        <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white flex-shrink-0 text-lg">
+            <i class="fa-solid fa-comment-sms"></i>
+        </div>
+        <div class="flex-1">
+            <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] font-bold tracking-wider text-teal-400 uppercase">Govt Health SMS Gateway</span>
+                <button onclick="closeSmsToast()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-200">Aapka Login OTP: <b id="toast-otp-val" class="text-amber-400 text-sm tracking-widest font-mono"></b> hai.</p>
+            <button onclick="autoFillOtp()" class="mt-2 text-[11px] bg-teal-600 hover:bg-teal-500 text-white px-2.5 py-1 rounded-md font-semibold transition">
+                Auto-Fill OTP
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 1: PUBLIC OVERVIEW                 -->
+    <!-- ========================================== -->
+    <div id="overview-view">
+        
+        <!-- Header with Language Switcher -->
+        <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <a href="#" class="flex items-center gap-3.5 group">
+                    <img src="Swasthya Saaransh.png" alt="Swasthya Saaransh Logo" 
+                         class="w-12 h-12 rounded-2xl object-contain shadow-md border border-slate-100 group-hover:scale-105 transition-transform duration-300">
+                    <div>
+                        <span class="text-xl font-black text-slate-900 tracking-tight flex items-center gap-1">
+                            स्वास्थ्य <span class="text-teal-600">सारांश</span>
+                        </span>
+                        <span class="text-[11px] block font-semibold text-slate-500 tracking-wide uppercase">AI-Driven Unified Health Ecosystem</span>
+                    </div>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                    <a href="#about" class="hover:text-teal-600 transition" data-i18n="navAbout">परियोजना के बारे में</a>
+                    <a href="#architecture" class="hover:text-teal-600 transition" data-i18n="navArch">सिस्टम डायग्राम</a>
+                    <a href="#features" class="hover:text-teal-600 transition" data-i18n="navFeat">मुख्य विशेषताएं</a>
+                </nav>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs">
+                        <i class="fa-solid fa-language text-teal-600 text-sm"></i>
+                        <select onchange="toggleLanguage(this.value)" class="global-lang-select bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer">
+                            <option value="hi" selected>हिंदी (Hindi)</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <button onclick="goToAppLogin()" 
+                       class="bg-gradient-to-r from-teal-600 to-cyan-700 hover:from-teal-700 hover:to-cyan-800 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-teal-700/20 hover:shadow-teal-700/30 flex items-center gap-2 transition duration-200 transform hover:-translate-y-0.5">
+                        <span data-i18n="ctaTreatment">Let's Go For Treatment</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section id="about" class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 hero-glow border-b border-slate-200/70">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                            <span data-i18n="heroBadge">स्मार्ट, सुरक्षित और त्वरित डिजिटल स्वास्थ्य मंच</span>
+                        </div>
+                        
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-[1.15] tracking-tight">
+                            <span data-i18n="heroHeading1">मरीज की हर रिपोर्ट का</span> <br class="hidden sm:inline">
+                            <span data-i18n="heroHeading2">सटीक व डिजिटल</span> <span class="gradient-text" data-i18n="heroHeading3">"स्वास्थ्य सारांश"</span>
+                        </h1>
+
+                        <p class="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed" data-i18n="heroDesc">
+                            लंबी कतारों और खोई हुई कागजी रिपोर्ट्स से पाएं मुक्ति! एआई चैटबॉट, वॉइस इनटेक, स्मार्ट ओसीआर रिपोर्ट स्कैनर और एलोपैथिक-आयुष डॉक्टरों के साथ एक ही क्लिक में परामर्श।
+                        </p>
+
+                        <div class="pt-2 flex flex-wrap justify-center lg:justify-start gap-4">
+                            <button onclick="goToAppLogin()" 
+                               class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-4 rounded-2xl shadow-xl shadow-teal-600/30 flex items-center gap-3 text-base transition duration-200 transform hover:scale-[1.02]">
+                                <i class="fa-solid fa-notes-medical text-lg"></i>
+                                <span data-i18n="btnStartTreatment">Let's Go For Treatment (इलाज शुरू करें)</span>
+                            </button>
+
+                            <a href="#architecture" 
+                               class="bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-bold px-6 py-4 rounded-2xl shadow-sm flex items-center gap-2 text-sm transition">
+                                <i class="fa-solid fa-diagram-project text-teal-600"></i>
+                                <span data-i18n="btnViewArch">कार्यप्रणाली व डायग्राम देखें</span>
+                            </a>
+                        </div>
+
+                        <div class="pt-6 grid grid-cols-3 gap-4 border-t border-slate-200/80 max-w-lg mx-auto lg:mx-0 text-center">
+                            <div>
+                                <span class="text-2xl font-black text-slate-900 block font-mono">100%</span>
+                                <span class="text-xs text-slate-500 font-semibold" data-i18n="statPaperless">पेपरलेस पर्ची</span>
+                            </div>
+                            <div>
+                                <span class="text-2xl font-black text-slate-900 block font-mono">&lt; 60s</span>
+                                <span class="text-xs text-slate-500 font-semibold" data-i18n="statOcr">स्मार्ट ओसीआर स्कैन</span>
+                            </div>
+                            <div>
+                                <span class="text-2xl font-black text-slate-900 block font-mono">2-in-1</span>
+                                <span class="text-xs text-slate-500 font-semibold" data-i18n="statOpd">एलोपैथी + आयुष OPD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Feature Matrix -->
+                    <div class="lg:col-span-5 relative flex justify-center">
+                        <div class="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 relative z-10 space-y-4">
+                            <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                                <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl shadow-xs">
+                                    <i class="fa-solid fa-network-wired"></i>
+                                </div>
+                                <div>
+                                    <h2 class="font-bold text-base text-slate-900" data-i18n="archCardTitle">डिजिटल हेल्थ नेटवर्क</h2>
+                                    <p class="text-xs text-teal-600 font-medium" data-i18n="archCardSub">सत्यापित हेल्थकेयर ऑटोमेशन</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 pt-1">
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                                    <i class="fa-solid fa-robot text-teal-600 text-lg mb-1.5 block"></i>
+                                    <h3 class="text-xs font-bold text-slate-900" data-i18n="boxBotTitle">AI इनटेक चैटबॉट</h3>
+                                    <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="boxBotDesc">टेक्स्ट, टच और वॉयस से लक्षण दर्ज करें</p>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                                    <i class="fa-solid fa-file-medical text-teal-600 text-lg mb-1.5 block"></i>
+                                    <h3 class="text-xs font-bold text-slate-900" data-i18n="boxOcrTitle">स्मार्ट OCR इंजन</h3>
+                                    <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="boxOcrDesc">खून व लैब जांच रिपोर्ट का तुरंत सार</p>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                                    <i class="fa-solid fa-user-doctor text-teal-600 text-lg mb-1.5 block"></i>
+                                    <h3 class="text-xs font-bold text-slate-900" data-i18n="boxTeleTitle">e-Sanjeevani ओपीडी</h3>
+                                    <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="boxTeleDesc">एलोपैथिक विशेषज्ञ डॉक्टरों से परामर्श</p>
+                                </div>
+                                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                                    <i class="fa-solid fa-seedling text-emerald-600 text-lg mb-1.5 block"></i>
+                                    <h3 class="text-xs font-bold text-slate-900" data-i18n="boxAyushTitle">आयुष (AYUSH) डॉक्टर</h3>
+                                    <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="boxAyushDesc">पारंपरिक आयुर्वेदिक चिकित्सा व दवाएं</p>
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <button onclick="goToAppLogin()" class="w-full bg-slate-900 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                                    <span data-i18n="btnPortalAccess">स्वास्थ्य पोर्टल पर लॉगिन करें</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Flow Section -->
+        <section id="architecture" class="py-16 bg-white border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-14">
+                    <span class="text-xs font-bold tracking-widest text-teal-600 uppercase bg-teal-50 border border-teal-200 px-3 py-1 rounded-full" data-i18n="archTag">
+                        प्रणाली संरचना एवं डेटा प्रवाह
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-950 mt-3" data-i18n="archHeading">
+                        स्वास्थ्य सारांश कैसे काम करता है?
+                    </h2>
+                    <p class="text-slate-600 text-sm sm:text-base mt-2" data-i18n="archSub">
+                        नागरिक के प्रवेश से लेकर डॉक्टर के अंतिम प्रिस्क्रिप्शन और रिकॉर्ड आर्काइविंग तक का संपूर्ण एंड-टू-एंड फ्लो
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-inner">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center space-y-2 hover:border-teal-500 transition">
+                            <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 mx-auto flex items-center justify-center text-xl font-bold">1</div>
+                            <h3 class="font-bold text-slate-900 text-sm" data-i18n="step1Title">प्रमाणीकरण (Auth)</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed" data-i18n="step1Desc">ABHA या पहचान संख्या व सुरक्षित SMS OTP द्वारा लॉगिन</p>
+                        </div>
+                        <div class="hidden md:flex justify-center text-slate-400 text-xl font-bold">
+                            <i class="fa-solid fa-arrow-right text-teal-600"></i>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center space-y-2 hover:border-teal-500 transition">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-700 mx-auto flex items-center justify-center text-xl font-bold">2</div>
+                            <h3 class="font-bold text-slate-900 text-sm" data-i18n="step2Title">AI इनटेक व OCR</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed" data-i18n="step2Desc">लक्षण बोलना, लिखना अथवा पुरानी ब्लड रिपोर्ट को स्कैन करना</p>
+                        </div>
+                        <div class="hidden md:flex justify-center text-slate-400 text-xl font-bold">
+                            <i class="fa-solid fa-arrow-right text-teal-600"></i>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center space-y-2 hover:border-teal-500 transition">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 mx-auto flex items-center justify-center text-xl font-bold">3</div>
+                            <h3 class="font-bold text-slate-900 text-sm" data-i18n="step3Title">डिजिटल टोकन व स्लिप</h3>
+                            <p class="text-[11px] text-slate-500 leading-relaxed" data-i18n="step3Desc">लाइव टोकन और डायग्नोसिस विवरण युक्त प्रिंट-रेडी पर्ची निर्माण</p>
+                        </div>
+                    </div>
+
+                    <div class="my-6 flex justify-center text-slate-400 text-xl font-bold">
+                        <i class="fa-solid fa-arrow-down text-teal-600"></i>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-2xl border-l-4 border-blue-600 border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl flex-shrink-0">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold tracking-wider text-blue-600 uppercase" data-i18n="path4ATag">पथ 4A • एलोपैथिक विकल्प</span>
+                                <h3 class="text-base font-bold text-slate-900" data-i18n="path4ATitle">e-Sanjeevani राष्ट्रीय टेलीमेडिसिन</h3>
+                                <p class="text-xs text-slate-600 mt-1" data-i18n="path4ADesc">
+                                    डॉक्टर सीधे ऑनलाइन कनेक्ट होकर पर्ची देखते हैं और डिजिटल सिग्नेचर के साथ एलोपैथिक प्रिस्क्रिप्शन जनरेट करते हैं।
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-600 border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl flex-shrink-0">
+                                <i class="fa-solid fa-leaf"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-bold tracking-wider text-emerald-600 uppercase" data-i18n="path4BTag">पथ 4B • आयुष विकल्प</span>
+                                <h3 class="text-base font-bold text-slate-900" data-i18n="path4BTitle">आयुष (AYUSH) आयुर्वेदिक ओपीडी</h3>
+                                <p class="text-xs text-slate-600 mt-1" data-i18n="path4BDesc">
+                                    प्राकृतिक जड़ी-बूटियों, वात-पित्त-कफ परीक्षण और आयुर्वेदिक औषधियों हेतु राष्ट्रीय आयुष वैद्यों द्वारा परामर्श।
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-teal-900 text-white p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-teal-800 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                                <i class="fa-solid fa-folder-tree"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold" data-i18n="step5Title">चरण 5: सुरक्षित इतिहास संग्रहण (My Past Records)</h3>
+                                <p class="text-xs text-teal-200" data-i18n="step5Desc">प्रत्येक प्रिस्क्रिप्शन विशिष्ट QR कोड के साथ लाइफ-टाइम रिपॉजिटरी में सुरक्षित रहता है।</p>
+                            </div>
+                        </div>
+                        <button onclick="goToAppLogin()" class="text-xs bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-4 py-2 rounded-xl transition" data-i18n="btnTryNow">
+                            अभी अनुभव करें
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features Section -->
+        <section id="features" class="py-16 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-14">
+                    <span class="text-xs font-bold tracking-widest text-teal-600 uppercase bg-teal-50 border border-teal-200 px-3 py-1 rounded-full" data-i18n="featTag">
+                        विशेषताएं
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-950 mt-3" data-i18n="featHeading">
+                        स्वास्थ्य सारांश की अद्वितीय क्षमताएं
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl mb-5">
+                            <i class="fa-solid fa-microphone-lines"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2" data-i18n="feat1Title">मल्टीमॉडल इनटेक (Voice & Chat)</h3>
+                        <p class="text-xs leading-relaxed text-slate-600" data-i18n="feat1Desc">
+                            मरीज अपनी भाषा में बोलकर, लिखकर अथवा दिए गए स्मार्ट उत्तरों पर टैप करके आसानी से अपने लक्षण दर्ज करा सकते हैं।
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl mb-5">
+                            <i class="fa-solid fa-file-waveform"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2" data-i18n="feat2Title">स्मार्ट OCR मेडिकल रिपोर्ट रीडर</h3>
+                        <p class="text-xs leading-relaxed text-slate-600" data-i18n="feat2Desc">
+                            खून, शुगर या किसी भी लैब रिपोर्ट की फोटो खींचते ही सिस्टम उसके मुख्य पैरामीटर्स को स्वचालित रूप से निकालकर सारांश में जोड़ देता है।
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-5">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2" data-i18n="feat3Title">एन्क्रिप्टेड ऑफलाइन QR कोड</h3>
+                        <p class="text-xs leading-relaxed text-slate-600" data-i18n="feat3Desc">
+                            इंटरनेट न होने पर भी डॉक्टर केवल मरीज की पर्ची का क्यूआर कोड स्कैन करके उसका सम्पूर्ण इलाज और रिपोर्ट तुरंत देख सकते हैं।
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom CTA -->
+        <section class="py-16 bg-slate-900 text-white relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+                <img src="Gemini_Generated_Image_pujv4ppujv4ppujv-Photoroom.png" alt="Logo" class="w-16 h-16 mx-auto rounded-2xl object-contain border border-slate-700">
+                
+                <h2 class="text-3xl sm:text-4xl font-black tracking-tight" data-i18n="bottomTitle">
+                    तैयार हैं एक आधुनिक डिजिटल स्वास्थ्य अनुभव के लिए?
+                </h2>
+                
+                <p class="text-slate-400 text-sm max-w-xl mx-auto" data-i18n="bottomDesc">
+                    बिना समय गंवाए अपने स्वास्थ्य लक्षणों का सटीक विश्लेषण प्राप्त करें और अनुभवी डॉक्टरों से डिजिटल रूप से जुड़ें।
+                </p>
+
+                <div class="pt-2">
+                    <button onclick="goToAppLogin()" 
+                       class="inline-flex items-center gap-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-black px-8 py-4 rounded-2xl shadow-xl transition transform hover:scale-105 text-base">
+                        <span data-i18n="ctaTreatment">Let's Go For Treatment</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="bg-slate-950 text-slate-500 py-6 text-xs text-center border-t border-slate-800">
+            <p data-i18n="footerCopy">© 2026 स्वास्थ्य सारांश (Swasthya Saaransh) प्रोजेक्ट पोर्टल। सर्वाधिकार सुरक्षित।</p>
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: MAIN APPLICATION & LOGIN VIEW   -->
+    <!-- ========================================== -->
+    <div id="app-container" class="hidden min-h-screen flex flex-col">
+        
+        <!-- App Top Header -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm no-print">
+            <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <img src="Gemini_Generated_Image_pujv4ppujv4ppujv-Photoroom.png" alt="Logo" class="w-10 h-10 rounded-xl object-contain shadow-sm border border-slate-200">
+                    <div>
+                        <h1 class="text-base md:text-lg font-bold text-slate-900 leading-tight" data-i18n="portalTitle">
+                            स्वास्थ्य सारांश – स्मार्ट हेल्थकेयर पोर्टल
+                        </h1>
+                        <p class="text-xs text-slate-500" data-i18n="portalSubtitle">एकीकृत स्मार्ट इनटेक, e-Sanjeevani, आयुष टेली-कंसल्ट व पास्ट रिकॉर्ड्स</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="goToOverview()" class="text-xs font-semibold text-slate-600 hover:text-teal-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-house text-teal-600"></i> <span data-i18n="navHome">होम</span>
+                    </button>
+
+                    <div class="flex items-center gap-2 bg-slate-100 border border-slate-300 rounded-xl px-3 py-1.5 text-xs">
+                        <i class="fa-solid fa-language text-teal-600 text-sm"></i>
+                        <select onchange="toggleLanguage(this.value)" class="global-lang-select bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer">
+                            <option value="hi" selected>हिंदी (Hindi)</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+
+                    <div id="user-badge" class="hidden flex items-center gap-2 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-full text-xs transition cursor-pointer" onclick="openProfileModal()" title="प्रोफाइल देखें एवं अपडेट करें">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="font-bold text-teal-900 user-name-display">राहुल वर्मा</span>
+                        <i class="fa-solid fa-user-pen text-teal-600 ml-1 text-xs"></i>
+                        <button onclick="event.stopPropagation(); logout();" class="text-slate-400 hover:text-rose-600 ml-2" title="लॉगआउट">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto p-4 md:p-6 flex-1 w-full">
+
+            <!-- Authentication Card -->
+            <section id="login-section" class="max-w-md mx-auto my-10 bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-200 no-print">
+                <div class="text-center mb-5">
+                    <div class="inline-flex p-3.5 bg-teal-50 text-teal-600 rounded-2xl text-3xl mb-2 shadow-inner">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900" data-i18n="loginTitle">सुरक्षित नागरिक लॉगिन</h2>
+                    <p class="text-xs text-slate-500 mt-1" data-i18n="loginDesc">अपने ABHA नंबर अथवा पहचान पत्र द्वारा प्रमाणित करें</p>
+                </div>
+
+                <div class="flex bg-slate-100 p-1 rounded-2xl mb-4 text-xs font-bold">
+                    <button type="button" id="tab-login-abha" onclick="switchLoginMode('abha')" class="flex-1 py-2 rounded-xl bg-white text-teal-800 shadow-sm transition">
+                        <i class="fa-solid fa-address-card mr-1"></i> ABHA नंबर
+                    </button>
+                    <button type="button" id="tab-login-aadhaar" onclick="switchLoginMode('aadhaar')" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition">
+                        <i class="fa-solid fa-id-card mr-1"></i> पहचान पत्र
+                    </button>
+                </div>
+
+                <div id="auth-alert" class="hidden mb-4 p-3 rounded-xl text-xs flex items-center gap-2"></div>
+
+                <form id="abha-form" onsubmit="handleAuthAction(event)" class="space-y-4 text-xs md:text-sm">
+                    <div>
+                        <label id="input-mode-label" class="block font-semibold text-slate-700 mb-1">ABHA नंबर दर्ज करें</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                                <i id="input-mode-icon" class="fa-solid fa-fingerprint"></i>
+                            </span>
+                            <input type="text" id="auth-id-input" required value="91-4523-8891-1209"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 font-mono text-sm">
+                        </div>
+                        <span id="input-mode-helper" class="text-[11px] text-slate-400 mt-1 block">उदा. 14 अंकों का ABHA नंबर</span>
+                    </div>
+
+                    <div id="otp-container" class="hidden space-y-2">
+                        <label class="block font-semibold text-slate-700" data-i18n="otpLabel">मोबाइल / पहचान OTP दर्ज करें</label>
+                        <input type="text" id="otp-input" placeholder="------" maxlength="6" inputmode="numeric"
+                            class="w-full px-4 py-2.5 rounded-xl border border-teal-400 bg-teal-50/20 focus:outline-none focus:ring-2 focus:ring-teal-500 text-center tracking-[0.4em] text-xl font-bold text-teal-800 font-mono">
+                        
+                        <div class="flex justify-between items-center pt-1 text-[11px]">
+                            <span class="text-slate-500" data-i18n="noOtpText">OTP नहीं मिला?</span>
+                            <button type="button" id="resend-btn" onclick="resendOtp()" disabled class="font-bold text-slate-400 cursor-not-allowed">
+                                <span data-i18n="resendText">पुनः भेजें</span> (<span id="resend-timer">60</span>s)
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="auth-submit-btn"
+                        class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-teal-600/20 transition flex items-center justify-center gap-2">
+                        <span id="btn-text" data-i18n="sendOtpBtn">OTP प्राप्त करें (Send OTP)</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                    <p class="text-xs text-slate-600 mb-1.5" data-i18n="noAbhaText">क्या आपके पास अभी तक ABHA कार्ड नहीं है?</p>
+                    <a href="https://abha.abdm.gov.in/abha/v3/register" target="_blank" rel="noopener noreferrer" 
+                       class="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3.5 py-2 rounded-xl transition">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span data-i18n="createAbhaLink">ऑनलाइन नया ABHA कार्ड बनाएं (Govt Portal)</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Main Portal Workspace -->
+            <div id="main-portal" class="hidden space-y-5">
+
+                <!-- Profile Summary & Live Actions Bar -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 no-print space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5 cursor-pointer group" onclick="openProfileModal()" title="क्लिक कर प्रोफाइल देखें या अपडेट करें">
+                            <div id="user-avatar-char" class="w-12 h-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center text-xl font-bold shadow-md group-hover:bg-teal-800 transition">
+                                र
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-lg font-bold text-slate-900 user-name-display group-hover:text-teal-700 transition">राहुल वर्मा</h2>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-300">ABHA VERIFIED</span>
+                                    <span class="text-slate-400 text-xs"><i class="fa-solid fa-pen-to-square"></i></span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 font-mono mt-0.5">
+                                    <span>ABHA ID: <b class="text-teal-700 font-semibold" id="bar-abha-val">91-4523-8891-1209</b></span>
+                                    <span><span data-i18n="ageLabel">आयु:</span> <b id="bar-age-val">32 वर्ष</b></span>
+                                    <span><span data-i18n="genderLabel">लिंग:</span> <b id="bar-gender-val">पुरुष</b></span>
+                                    <span><span data-i18n="bloodGroupLabel">रक्त:</span> <b>B+</b></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center flex-wrap gap-2.5">
+                            <button onclick="openTeleconsultationModal()" class="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition">
+                                <i class="fa-solid fa-video"></i>
+                                <span data-i18n="eSanjeevaniBtn">e-Sanjeevani एलोपैथिक डॉक्टर</span>
+                            </button>
+
+                            <button onclick="openAyushModal()" class="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition">
+                                <i class="fa-solid fa-leaf"></i>
+                                <span data-i18n="ayushBtn">आयुष (AYUSH) आयुर्वेदिक डॉक्टर</span>
+                            </button>
+
+                            <div class="bg-teal-50 border border-teal-200 px-3.5 py-2 rounded-xl text-right">
+                                <span class="text-[10px] font-bold text-teal-700 uppercase tracking-wider block" data-i18n="liveTokenLabel">वर्तमान टोकन</span>
+                                <span class="text-base font-black font-mono text-teal-900" id="live-token-badge">#ABHA-TK-7842</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Tabs -->
+                    <div id="tab-nav-bar" class="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+                        <button onclick="switchTab('intake')" id="tab-btn-intake" class="tab-btn active bg-teal-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-stethoscope"></i> <span data-i18n="tabIntake">स्मार्ट इनटेक व नई पर्ची</span>
+                        </button>
+                        <button onclick="switchTab('records')" id="tab-btn-records" class="tab-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-teal-600"></i> <span data-i18n="tabRecords">माय पास्ट रिकॉर्ड्स व रिपोर्ट्स</span>
+                            <span id="record-count-badge" class="bg-slate-300 text-slate-800 text-[10px] px-1.5 py-0.2 rounded-full font-bold">2</span>
+                        </button>
+                        <button onclick="switchTab('feedback')" id="tab-btn-feedback" class="tab-btn relative bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-question text-teal-600"></i> <span data-i18n="tabFeedback">परामर्श व फीडबैक फॉर्म</span>
+                            <span id="pending-feedback-badge" class="hidden bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold animate-pulse">1</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 1: Smart Intake & Slip -->
+                <div id="intake-view" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <div id="chatbot-col" class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[760px] overflow-hidden no-print">
+                        <div class="p-3.5 bg-slate-900 text-white flex justify-between items-center">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <div>
+                                    <h3 class="font-bold text-sm leading-none" data-i18n="botTitle">AI हेल्थ इनटेक चैटबॉट</h3>
+                                    <p class="text-[10px] text-slate-400 mt-1" data-i18n="botSubtitle">टेक्स्ट, वॉयस, टच चिप्स व एडवांस्ड OCR द्वारा लक्षण दर्ज करें</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-teal-800 text-teal-200 px-2 py-0.5 rounded border border-teal-600 font-mono">
+                                <i class="fa-solid fa-microchip mr-1"></i> Smart OCR v2.5
+                            </span>
+                        </div>
+
+                        <div id="chat-stream" class="flex-1 p-4 overflow-y-auto chat-scroll space-y-3 bg-slate-50/60"></div>
+
+                        <div id="ocr-progress-bar" class="hidden px-4 py-2 bg-teal-50 border-t border-teal-100 flex items-center justify-between text-xs text-teal-800 font-medium">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-spinner fa-spin text-teal-600"></i>
+                                <span id="ocr-status-text">रिपोर्ट इमेज प्री-प्रोसेस व OCR स्कैन हो रही है...</span>
+                            </span>
+                            <span id="ocr-percentage" class="font-mono font-bold">0%</span>
+                        </div>
+
+                        <div class="p-2.5 bg-slate-100/90 border-t border-slate-200">
+                            <div class="text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-hand-pointer text-teal-600"></i> <span data-i18n="quickReplyLabel">सुझाए गए उत्तर:</span>
+                            </div>
+                            <div id="quick-buttons" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <form id="chat-input-form" onsubmit="handleSendText(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+                            <label class="w-10 h-10 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 flex items-center justify-center border border-teal-300 cursor-pointer shadow-xs transition relative" title="मेडिकल रिपोर्ट/पर्चा स्कैन करें (Smart OCR)">
+                                <i class="fa-solid fa-file-medical text-base"></i>
+                                <input type="file" id="ocr-file-input" accept="image/*" class="hidden" onchange="handleOCRDocumentUpload(event)">
+                            </label>
+
+                            <button type="button" id="voice-btn" onclick="toggleVoiceInput()" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-teal-50 text-slate-600 flex items-center justify-center border border-slate-300 relative">
+                                <i class="fa-solid fa-microphone" id="mic-icon"></i>
+                                <span id="voice-recording-dot" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
+                            </button>
+                            
+                            <input type="text" id="user-msg-input" placeholder="लक्षण लिखें, बोलें या रिपोर्ट अटैच करें..." class="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            
+                            <button type="submit" class="w-10 h-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Prescription Slip Column -->
+                    <div id="slip-col" class="lg:col-span-6 space-y-4">
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap justify-between items-center gap-2 no-print">
+                            <div class="flex items-center flex-wrap gap-2 text-xs">
+                                <span class="font-bold text-slate-700">परामर्श विकल्प:</span>
+                                
+                                <button onclick="openTeleconsultationModal()" class="text-blue-700 hover:text-blue-900 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition">
+                                    <i class="fa-solid fa-user-doctor text-blue-600"></i> e-Sanjeevani
+                                </button>
+
+                                <button onclick="openAyushModal()" class="text-emerald-800 hover:text-emerald-950 bg-emerald-50 border border-emerald-300 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition">
+                                    <i class="fa-solid fa-leaf text-emerald-600"></i> आयुष डॉक्टर (आयुर्वेदिक)
+                                </button>
+                            </div>
+
+                            <button onclick="handlePrintSlip()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-print"></i> <span data-i18n="printBtn">PDF / प्रिंट पर्ची</span>
+                            </button>
+                        </div>
+
+                        <!-- Printable Slip Canvas -->
+                        <div id="printable-medical-report" class="bg-white p-5 rounded-2xl border border-slate-300 shadow-sm space-y-4">
+                            <div class="border-b-2 border-slate-900 pb-2.5 flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-base font-black uppercase text-slate-900 tracking-tight" data-i18n="slipTitle">स्वास्थ्य सारांश - मरीज इनटेक व क्लीनिकल रेफरल स्लिप</h3>
+                                    <p class="text-[10px] text-slate-500">स्वास्थ्य सारांश पोर्टल • eSanjeevani एवं राष्ट्रीय आयुष नेटवर्क</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase font-mono">VERIFIED</span>
+                                    <div class="text-xs font-black text-rose-700 mt-1 font-mono" id="report-token-txt">#ABHA-TK-7842</div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                                <div>
+                                    <span class="text-slate-500 block text-[11px]" data-i18n="patName">मरीज का नाम:</span> 
+                                    <b class="text-slate-900 font-bold user-name-display">राहुल वर्मा</b>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px]" data-i18n="patAbha">ABHA ID:</span> 
+                                    <b class="text-teal-700 font-mono font-bold" id="slip-abha-val">91-4523-8891-1209</b>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px]" data-i18n="slipDateLabel">प्रिस्क्रिप्शन दिनांक:</span> 
+                                    <b class="text-slate-800 font-mono font-bold" id="slip-date-txt">04 Sep 2026, 10:30 AM</b>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px]" data-i18n="ageLabel">आयु:</span> 
+                                    <b class="text-slate-800 font-bold" id="slip-age-txt">32 वर्ष (Years)</b>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px]" data-i18n="genderLabel">लिंग:</span> 
+                                    <b class="text-slate-800 font-bold" id="slip-gender-txt">पुरुष (Male)</b>
+                                </div>
+                                <div>
+                                    <span class="text-slate-500 block text-[11px]" data-i18n="bloodGroupLabel">रक्त समूह:</span> 
+                                    <b class="text-slate-800 font-bold" id="slip-blood-txt">B+ Positive</b>
+                                </div>
+
+                                <div class="col-span-2 sm:col-span-3 bg-amber-50/80 p-3 rounded-xl border border-amber-200 mt-1">
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                        <div class="flex-1">
+                                            <span class="text-slate-700 block text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5" data-i18n="chiefComplaint">
+                                                <i class="fa-solid fa-clipboard-list text-amber-700"></i> वर्तमान लक्षण व नैदानिक विवरण (Chief Complaints & OCR Summary):
+                                            </span>
+                                            <b class="text-slate-900 text-xs block mt-1 leading-relaxed" id="rep-complaint">तेज सिरदर्द और बुखार (पिछले 2 दिनों से)</b>
+                                            <div id="ocr-badge-container" class="hidden mt-1.5">
+                                                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-300">
+                                                    <i class="fa-solid fa-file-check mr-1"></i> लैब दस्तावेज़ संलग्न व OCR सत्यापित
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Dedicated QR Code generated from OCR Report -->
+                                        <div id="ocr-qr-box" class="hidden flex flex-col items-center bg-white p-2 rounded-xl border border-amber-300 shadow-xs flex-shrink-0">
+                                            <div id="ocr-doc-qr" class="w-[68px] h-[68px] flex items-center justify-center"></div>
+                                            <span class="text-[9px] font-mono font-bold text-amber-900 mt-1 uppercase text-center">OCR Data QR</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-notes-medical text-teal-700 text-xs"></i>
+                                        <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider" data-i18n="pastTimelineHeading">पिछला चिकित्सकीय इतिहास व पूर्व रिपोर्ट्स</h4>
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 italic" data-i18n="scanQrHint">प्रत्येक पुरानी रिपोर्ट हेतु अलग QR कोड उपलब्ध है</span>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-[11px] border border-slate-200 rounded-lg">
+                                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                            <tr>
+                                                <th class="p-1.5" data-i18n="colDateToken">दिनांक / टोकन</th>
+                                                <th class="p-1.5" data-i18n="colFacility">अस्पताल व डॉक्टर</th>
+                                                <th class="p-1.5" data-i18n="colDiagnosis">निदान (Diagnosis)</th>
+                                                <th class="p-1.5" data-i18n="colRx">उपचार / दवाएं</th>
+                                                <th class="p-1.5 text-center" data-i18n="colQrRecord">रिकॉर्ड QR</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="slip-history-rows" class="divide-y divide-slate-200 bg-white"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="pt-2.5 border-t border-slate-200 flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div id="report-qr" class="p-1 bg-white border border-slate-300 rounded-lg min-w-[70px] min-h-[70px] flex items-center justify-center"></div>
+                                    <div class="text-[10px] text-slate-500 leading-tight max-w-[240px]">
+                                        <b class="text-slate-700" data-i18n="qrHeading">मास्टर ऑफलाइन QR कोड:</b> 
+                                        <span data-i18n="qrDesc">पूरा मरीज प्रोफाइल, आयु, लिंग, टोकन व संपूर्ण इतिहास एक साथ स्कैन करने हेतु।</span>
+                                    </div>
+                                </div>
+                                <div class="text-right text-[10px] text-slate-400">
+                                    <p>डिजिटली सत्यापित प्रिस्क्रिप्शन</p>
+                                    <p class="font-bold text-slate-600">स्वास्थ्य सारांश नेटवर्क</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tab 2: Records View -->
+                <div id="records-view" class="tab-content hidden space-y-4 no-print">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex flex-wrap justify-between items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900" data-i18n="historyTitle">माय पास्ट रिकॉर्ड्स व रिपोर्ट्स (Past Clinical Encounters)</h3>
+                                <p class="text-xs text-slate-500" data-i18n="historySubtitle">आपके पूर्व के सभी इलाज, अस्पताल, टोकन नंबर और पर्चियों का सुरक्षित रिकॉर्ड</p>
+                            </div>
+                            <span class="text-xs font-mono bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-lg">
+                                <span data-i18n="patientLabel">मरीज:</span> <b class="user-name-display">राहुल वर्मा</b>
+                            </span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                                <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-3" data-i18n="recColToken">टोकन नंबर</th>
+                                        <th class="p-3" data-i18n="recColDate">तारीख</th>
+                                        <th class="p-3" data-i18n="recColHosp">अस्पताल / स्वास्थ्य केंद्र</th>
+                                        <th class="p-3" data-i18n="recColDoc">डॉक्टर व विभाग</th>
+                                        <th class="p-3" data-i18n="recColDiag">जाँच / समस्या</th>
+                                        <th class="p-3" data-i18n="recColStatus">स्थिति (Status)</th>
+                                        <th class="p-3 text-right" data-i18n="recColAction">कार्य</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="past-records-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Consultation & Feedback View -->
+                <div id="feedback-view" class="tab-content hidden space-y-4 no-print">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto">
+                        <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
+                            <div>
+                                <h3 class="text-base md:text-lg font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-clipboard-check text-teal-600"></i>
+                                    <span data-i18n="tabFeedback">परामर्श व फीडबैक फॉर्म</span>
+                                </h3>
+                                <p class="text-xs text-slate-500" data-i18n="feedbackTabDesc">परामर्श के बाद डॉक्टर के नोट्स, दवाइयां व पर्ची यहाँ दर्ज होकर सहेजी जाती हैं।</p>
+                            </div>
+                            <span class="bg-teal-50 text-teal-800 text-xs font-mono font-bold px-2.5 py-1 rounded-lg border border-teal-200" id="feedback-active-token">
+                                टोकन: #ABHA-TK-7842
+                            </span>
+                        </div>
+
+                        <div id="doctor-filled-indicator" class="hidden mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-user-doctor text-blue-600 text-base"></i>
+                            <span id="doc-indicator-text"><b>ऑनलाइन कंसल्टेशन:</b> डॉक्टर द्वारा यह प्रिस्क्रिप्शन और फीडबैक स्वचालित रूप से प्रमाणित व दर्ज किया गया है।</span>
+                        </div>
+
+                        <form onsubmit="handleFeedbackSubmit(event)" class="space-y-4 text-xs md:text-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1" data-i18n="docLabel">डॉक्टर / क्लिनिक का नाम</label>
+                                    <input type="text" id="fb-doc-name" placeholder="उदा. डॉ. ए. के. शर्मा / वैद्य शास्त्री" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1" data-i18n="hospLabel">अस्पताल / स्वास्थ्य केंद्र</label>
+                                    <input type="text" id="fb-hospital-name" placeholder="उदा. CHC / राजकीय आयुर्वेदिक चिकित्सालय" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1" data-i18n="notesLabel">परामर्श नोट्स व दवाएं (Prescription / Advice)</label>
+                                <textarea id="fb-notes" rows="3" placeholder="डॉक्टर द्वारा बताई गई दवाइयां या सलाह..." required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500"></textarea>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
+                                <label class="block font-semibold text-slate-700 mb-1" data-i18n="uploadLabel">
+                                    <i class="fa-solid fa-paperclip text-teal-600 mr-1"></i> पर्ची या नई लैब रिपोर्ट अपलोड करें (PDF / Image)
+                                </label>
+                                <p class="text-[11px] text-slate-500 mb-2">पर्चे की फोटो या PDF संलग्न करें ताकि यह आपके पुराने रिकॉर्ड्स में सुरक्षित रहे।</p>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <input type="file" id="report-file-input" accept="image/*,.pdf" onchange="handleFileSelected(event)"
+                                        class="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-700 cursor-pointer">
+                                    <span id="file-status" class="text-xs text-emerald-600 font-bold hidden">
+                                        <i class="fa-solid fa-circle-check"></i> <span data-i18n="fileAttached">फ़ाइल सफलतापूर्वक संलग्न की गई!</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-3 pt-2">
+                                <button type="button" onclick="switchTab('records')" class="px-4 py-2.5 text-xs text-slate-600 hover:text-slate-900">
+                                    रद्द करें
+                                </button>
+                                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span data-i18n="saveRecordBtn">रिकॉर्ड में सहेजें (Save to Records)</span>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="fb-success-msg" class="hidden mt-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check text-base text-emerald-600"></i>
+                            <span data-i18n="saveSuccess">फीडबैक एवं प्रिस्क्रिप्शन रिकॉर्ड सफलतापूर्वक माय रिकॉर्ड्स टैब में सहेज दिया गया है!</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="ayush-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 relative overflow-hidden">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-xl shadow-md">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-black text-slate-900 text-base">आयुष (AYUSH) राष्ट्रीय टेली-परामर्श सेवा</h3>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">आयुर्वेद OPD</span>
+                        </div>
+                        <p class="text-xs text-slate-500">स्वास्थ्य सारांश • आयुष नेटवर्क</p>
+                    </div>
+                </div>
+                <button onclick="closeAyushModal()" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="ayush-step-transfer" class="py-6 space-y-4 text-center">
+                <div class="inline-flex p-4 rounded-full bg-emerald-50 text-emerald-700 text-3xl animate-spin"><i class="fa-solid fa-rotate"></i></div>
+                <h4 class="font-bold text-slate-800 text-sm">आपकी स्वास्थ्य रिपोर्ट व लक्षण आयुष आयुर्वेदिक चिकित्सक को प्रेषित किए जा रहे हैं...</h4>
+                <div class="max-w-md mx-auto bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-left font-mono space-y-1">
+                    <div>मरीज: <b class="user-name-display">राहुल वर्मा</b></div>
+                    <div>टोकन: <b class="text-teal-700" id="ayush-tok-txt">#ABHA-TK-7842</b></div>
+                    <div>लक्षण डेटा: <span class="text-slate-700" id="ayush-complaint-txt">तेज सिरदर्द और बुखार</span></div>
+                    <div class="text-emerald-700 font-bold">✓ वात-पित्त-कफ मूल्यांकन व हर्बल परामर्श हेतु सक्रिय</div>
+                </div>
+            </div>
+
+            <div id="ayush-step-connected" class="hidden py-4 space-y-4">
+                <div class="bg-emerald-950 rounded-2xl p-4 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-300 text-xl font-bold">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm">वैद्य देवेन्द्र शास्त्री (BAMS, MD - आयुर्वेद)</h4>
+                            <p class="text-xs text-emerald-300">राष्ट्रीय आयुष आरोग्य केंद्र • ऑनलाइन परामर्श</p>
+                        </div>
+                    </div>
+                    <span class="bg-emerald-600 text-white text-[10px] font-bold px-2 py-1 rounded-md animate-pulse flex items-center gap-1">
+                        <i class="fa-solid fa-circle text-[8px]"></i> AYUSH LIVE
+                    </span>
+                </div>
+
+                <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200 text-xs text-slate-800 space-y-1.5">
+                    <p class="font-bold text-emerald-900">आयुष डॉक्टर का परामर्श व हर्बल प्रिस्क्रिप्शन:</p>
+                    <p class="italic text-slate-700">"नमस्ते राहुल जी, आपके लक्षण और पुरानी रिपोर्ट देखी गई है। संक्रमण निवारण हेतु यह शुद्ध आयुर्वेदिक उपचार अनुशंसित है।"</p>
+                    <div class="bg-white/80 p-2.5 rounded-lg border border-emerald-300 text-slate-900 font-medium">
+                        🌿 <b>सुदर्शन घनवटी:</b> 1-1 गोली सुबह-शाम गुनगुने पानी से<br>
+                        🍵 <b>गिलोय क्वाथ:</b> 20ml दिन में दो बार<br>
+                        ✨ <b>शिरःशूलहर लेप / विश्राम:</b> हल्का सुपाच्य भोजन (मूंग दाल खिचड़ी) लें।
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="completeAyushConsultation()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs md:text-sm">
+                        <i class="fa-solid fa-signature"></i>
+                        <span>आयुर्वेदिक प्रिस्क्रिप्शन स्वीकार करें एवं रिकॉर्ड में सेव करें</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- e-Sanjeevani Modal -->
+    <div id="telemed-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 relative overflow-hidden">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-hospital-user"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-black text-slate-900 text-base" data-i18n="telemedModalTitle">eSanjeevani National Teleconsultation</h3>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">LIVE OPD</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Ministry of Health & Family Welfare (MoHFW), Govt. of India</p>
+                    </div>
+                </div>
+                <button onclick="closeTeleconsultationModal()" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="tele-step-transfer" class="py-6 space-y-4 text-center">
+                <div class="inline-flex p-4 rounded-full bg-blue-50 text-blue-600 text-3xl animate-spin"><i class="fa-solid fa-arrows-rotate"></i></div>
+                <h4 class="font-bold text-slate-800 text-sm" data-i18n="telemedSendingText">आपकी मेडिकल रिपोर्ट व पास्ट टाइमलाइन e-Sanjeevani डॉक्टर पोर्टल पर भेजी जा रही है...</h4>
+                <div class="max-w-md mx-auto bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-left font-mono space-y-1">
+                    <div>मरीज: <b class="user-name-display">राहुल वर्मा</b></div>
+                    <div>आयु / लिंग: <span id="tele-meta-txt">32 वर्ष | पुरुष</span></div>
+                    <div>टोकन: <b class="text-teal-700" id="tele-tok-txt">#ABHA-TK-7842</b></div>
+                    <div>डायग्नोसिस डेटा: <span class="text-slate-600" id="tele-complaint-txt">तेज सिरदर्द और बुखार</span></div>
+                    <div class="text-emerald-600 font-bold">✓ 2 पूर्व क्लीनिकल रिपोर्ट्स संलग्न (QR एनक्रिप्टेड)</div>
+                </div>
+            </div>
+
+            <div id="tele-step-connected" class="hidden py-4 space-y-4">
+                <div class="bg-slate-900 rounded-2xl p-4 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center text-teal-300 text-xl font-bold">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm">डॉ. सुनील मेहता (MD, Medicine)</h4>
+                            <p class="text-xs text-teal-400">eSanjeevani OPD Hub • ऑनलाइन कनेक्टेड</p>
+                        </div>
+                    </div>
+                    <span class="bg-rose-600 text-white text-[10px] font-bold px-2 py-1 rounded-md animate-pulse flex items-center gap-1">
+                        <i class="fa-solid fa-circle text-[8px]"></i> LIVE
+                    </span>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 text-xs text-slate-700 space-y-1">
+                    <p class="font-semibold text-blue-900">डॉक्टर का संदेश:</p>
+                    <p>"नमस्ते राहुल जी, आपकी वर्तमान समस्या और दोनों पुरानी रिपोर्ट्स मैंने देख ली हैं। डिजिटल प्रिस्क्रिप्शन तैयार कर आपके पोर्टल पर सुरक्षित कर दी गई है।"</p>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="completeDoctorOnlineConsultation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-xs md:text-sm">
+                        <i class="fa-solid fa-signature"></i>
+                        <span data-i18n="doctorSignBtn">डॉक्टर प्रिस्क्रिप्शन स्वीकार करें एवं रिकॉर्ड में सेव करें</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 no-print overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 my-8">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-id-badge"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base" data-i18n="profileModalTitle">नागरिक स्वास्थ्य प्रोफाइल (Citizen Health Profile)</h3>
+                        <p class="text-xs text-slate-500">स्वास्थ्य सारांश रजिस्टर्ड डेमोग्राफिक एवं संपर्क विवरण</p>
+                    </div>
+                </div>
+                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-slate-700 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form onsubmit="handleProfileUpdate(event)" class="space-y-4 text-xs md:text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">पूरा नाम (Full Name)</label>
+                        <input type="text" id="prof-name" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ABHA ID (अपरिवर्तनीय)</label>
+                        <input type="text" id="prof-abha" readonly disabled class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-slate-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">आयु (Age in Years)</label>
+                        <input type="number" id="prof-age" min="1" max="120" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">लिंग (Gender)</label>
+                        <select id="prof-gender" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                            <option value="पुरुष">पुरुष (Male)</option>
+                            <option value="महिला">महिला (Female)</option>
+                            <option value="अन्य">अन्य (Other)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">रक्त समूह (Blood Group)</label>
+                        <select id="prof-blood" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                            <option value="B+">B+ Positive</option>
+                            <option value="A+">A+ Positive</option>
+                            <option value="O+">O+ Positive</option>
+                            <option value="AB+">AB+ Positive</option>
+                            <option value="O-">O- Negative</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">मोबाइल नंबर</label>
+                        <input type="tel" id="prof-phone" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <label class="block font-semibold text-slate-700 mb-1">स्थायी पता (Permanent Address)</label>
+                    <input type="text" id="prof-address" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">जिला / शहर</label>
+                        <input type="text" id="prof-district" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">राज्य</label>
+                        <input type="text" id="prof-state" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">पिनकोड</label>
+                        <input type="text" id="prof-pincode" maxlength="6" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closeProfileModal()" class="px-4 py-2 text-xs text-slate-600 hover:text-slate-900">बंद करें</button>
+                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>प्रोफाइल अपडेट करें (Save Profile)</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Javascript -->
+    <script>
+        const dict = {
+            hi: {
+                navAbout: "परियोजना के बारे में",
+                navArch: "सिस्टम डायग्राम",
+                navFeat: "मुख्य विशेषताएं",
+                navHome: "होम",
+                ctaTreatment: "Let's Go For Treatment",
+                heroBadge: "स्मार्ट, सुरक्षित और त्वरित डिजिटल स्वास्थ्य मंच",
+                heroHeading1: "मरीज की हर रिपोर्ट का",
+                heroHeading2: "सटीक व डिजिटल",
+                heroHeading3: "\"स्वास्थ्य सारांश\"",
+                heroDesc: "लंबी कतारों और खोई हुई कागजी रिपोर्ट्स से पाएं मुक्ति! एआई चैटबॉट, वॉइस इनटेक, स्मार्ट ओसीआर रिपोर्ट स्कैनर और एलोपैथिक-आयुष डॉक्टरों के साथ एक ही क्लिक में परामर्श।",
+                btnStartTreatment: "Let's Go For Treatment (इलाज शुरू करें)",
+                btnViewArch: "कार्यप्रणाली व डायग्राम देखें",
+                statPaperless: "पेपरलेस पर्ची",
+                statOcr: "स्मार्ट ओसीआर स्कैन",
+                statOpd: "एलोपैथी + आयुष OPD",
+                archCardTitle: "डिजिटल हेल्थ नेटवर्क",
+                archCardSub: "सत्यापित हेल्थकेयर ऑटोमेशन",
+                boxBotTitle: "AI इनटेक चैटबॉट",
+                boxBotDesc: "टेक्स्ट, टच और वॉयस से लक्षण दर्ज करें",
+                boxOcrTitle: "स्मार्ट OCR इंजन",
+                boxOcrDesc: "खून व लैब जांच रिपोर्ट का तुरंत सार",
+                boxTeleTitle: "e-Sanjeevani ओपीडी",
+                boxTeleDesc: "एलोपैथिक विशेषज्ञ डॉक्टरों से परामर्श",
+                boxAyushTitle: "आयुष (AYUSH) डॉक्टर",
+                boxAyushDesc: "पारंपरिक आयुर्वेदिक चिकित्सा व दवाएं",
+                btnPortalAccess: "स्वास्थ्य पोर्टल पर लॉगिन करें",
+                archTag: "प्रणाली संरचना एवं डेटा प्रवाह",
+                archHeading: "स्वास्थ्य सारांश कैसे काम करता है?",
+                archSub: "नागरिक के प्रवेश से लेकर डॉक्टर के अंतिम प्रिस्क्रिप्शन और रिकॉर्ड आर्काइविंग तक का संपूर्ण एंड-टू-एंड फ्लो",
+                step1Title: "प्रमाणीकरण (Auth)",
+                step1Desc: "ABHA या पहचान संख्या व सुरक्षित SMS OTP द्वारा लॉगिन",
+                step2Title: "AI इनटेक व OCR",
+                step2Desc: "लक्षण बोलना, लिखना अथवा पुरानी ब्लड रिपोर्ट को स्कैन करना",
+                step3Title: "डिजिटल टोकन व स्लिप",
+                step3Desc: "लाइव टोकन और डायग्नोसिस विवरण युक्त प्रिंट-रेडी पर्ची निर्माण",
+                path4ATag: "पथ 4A • एलोपैथिक विकल्प",
+                path4ATitle: "e-Sanjeevani राष्ट्रीय टेलीमेडिसिन",
+                path4ADesc: "डॉक्टर सीधे ऑनलाइन कनेक्ट होकर पर्ची देखते हैं और डिजिटल सिग्नेचर के साथ एलोपैथिक प्रिस्क्रिप्शन जनरेट करते हैं।",
+                path4BTag: "पथ 4B • आयुष विकल्प",
+                path4BTitle: "आयुष (AYUSH) आयुर्वेदिक ओपीडी",
+                path4BDesc: "प्राकृतिक जड़ी-बूटियों, वात-पित्त-कफ परीक्षण और आयुर्वेदिक औषधियों हेतु राष्ट्रीय आयुष वैद्यों द्वारा परामर्श।",
+                step5Title: "चरण 5: सुरक्षित इतिहास संग्रहण (My Past Records)",
+                step5Desc: "प्रत्येक प्रिस्क्रिप्शन विशिष्ट QR कोड के साथ लाइफ-टाइम रिपॉजिटरी में सुरक्षित रहता है।",
+                btnTryNow: "अभी अनुभव करें",
+                featTag: "विशेषताएं",
+                featHeading: "स्वास्थ्य सारांश की अद्वितीय क्षमताएं",
+                feat1Title: "मल्टीमॉडल इनटेक (Voice & Chat)",
+                feat1Desc: "मरीज अपनी भाषा में बोलकर, लिखकर अथवा दिए गए स्मार्ट उत्तरों पर टैप करके आसानी से अपने लक्षण दर्ज करा सकते हैं।",
+                feat2Title: "स्मार्ट OCR मेडिकल रिपोर्ट रीडर",
+                feat2Desc: "खून, शुगर या किसी भी लैब रिपोर्ट की फोटो खींचते ही सिस्टम उसके मुख्य पैरामीटर्स को स्वचालित रूप से निकालकर सारांश में जोड़ देता है।",
+                feat3Title: "एन्क्रिप्टेड ऑफलाइन QR कोड",
+                feat3Desc: "इंटरनेट न होने पर भी डॉक्टर केवल मरीज की पर्ची का क्यूआर कोड स्कैन करके उसका सम्पूर्ण इलाज और रिपोर्ट तुरंत देख सकते हैं।",
+                bottomTitle: "तैयार हैं एक आधुनिक डिजिटल स्वास्थ्य अनुभव के लिए?",
+                bottomDesc: "बिना समय गंवाए अपने स्वास्थ्य लक्षणों का सटीक विश्लेषण प्राप्त करें और अनुभवी डॉक्टरों से डिजिटल रूप से जुड़ें।",
+                footerCopy: "© 2026 स्वास्थ्य सारांश (Swasthya Saaransh) प्रोजेक्ट पोर्टल। सर्वाधिकार सुरक्षित।",
+                portalTitle: "स्वास्थ्य सारांश – स्मार्ट हेल्थकेयर पोर्टल",
+                portalSubtitle: "एकीकृत स्मार्ट इनटेक, e-Sanjeevani, आयुष टेली-कंसल्ट व पास्ट रिकॉर्ड्स",
+                loginTitle: "सुरक्षित नागरिक लॉगिन",
+                loginDesc: "अपने ABHA नंबर अथवा पहचान पत्र द्वारा प्रमाणित करें",
+                otpLabel: "मोबाइल / पहचान OTP दर्ज करें",
+                noOtpText: "OTP नहीं मिला?",
+                resendText: "पुनः भेजें",
+                sendOtpBtn: "OTP प्राप्त करें (Send OTP)",
+                verifyOtpBtn: "सत्यापित करें एवं आगे बढ़ें",
+                noAbhaText: "क्या आपके पास अभी तक ABHA कार्ड नहीं है?",
+                createAbhaLink: "ऑनलाइन नया ABHA कार्ड बनाएं (Govt Portal)",
+                liveTokenLabel: "वर्तमान टोकन नंबर",
+                ageLabel: "आयु:",
+                genderLabel: "लिंग:",
+                bloodGroupLabel: "रक्त समूह:",
+                slipDateLabel: "प्रिस्क्रिप्शन दिनांक:",
+                eSanjeevaniBtn: "e-Sanjeevani एलोपैथिक डॉक्टर",
+                ayushBtn: "आयुष (AYUSH) आयुर्वेदिक डॉक्टर",
+                tabIntake: "स्मार्ट इनटेक व नई पर्ची",
+                tabRecords: "माय पास्ट रिकॉर्ड्स व रिपोर्ट्स",
+                tabFeedback: "परामर्श व फीडबैक फॉर्म",
+                botTitle: "AI हेल्थ इनटेक चैटबॉट",
+                botSubtitle: "टेक्स्ट, वॉयस, टच चिप्स व एडवांस्ड OCR द्वारा लक्षण दर्ज करें",
+                quickReplyLabel: "सुझाए गए उत्तर:",
+                printBtn: "PDF / प्रिंट पर्ची",
+                slipTitle: "स्वास्थ्य सारांश - मरीज इनटेक व क्लीनिकल रेफरल स्लिप",
+                patName: "मरीज का नाम:",
+                patAbha: "ABHA ID:",
+                chiefComplaint: "वर्तमान लक्षण व नैदानिक विवरण (Chief Complaints & OCR Summary):",
+                pastTimelineHeading: "पिछला चिकित्सकीय इतिहास व पूर्व रिपोर्ट्स",
+                scanQrHint: "प्रत्येक पुरानी रिपोर्ट हेतु अलग QR कोड उपलब्ध है",
+                colDateToken: "दिनांक / टोकन",
+                colFacility: "अस्पताल व डॉक्टर",
+                colDiagnosis: "निदान (Diagnosis)",
+                colRx: "उपचार / दवाएं",
+                colQrRecord: "रिकॉर्ड QR",
+                qrHeading: "मास्टर ऑफलाइन QR कोड:",
+                qrDesc: "पूरा मरीज प्रोफाइल, आयु, लिंग, टोकन व संपूर्ण इतिहास एक साथ स्कैन करने हेतु।",
+                historyTitle: "माय पास्ट रिकॉर्ड्स व रिपोर्ट्स (Past Clinical Encounters)",
+                historySubtitle: "आपके पूर्व के सभी इलाज, अस्पताल, टोकन नंबर और पर्चियों का सुरक्षित रिकॉर्ड",
+                patientLabel: "मरीज:",
+                recColToken: "टोकन नंबर",
+                recColDate: "तारीख",
+                recColHosp: "अस्पताल / स्वास्थ्य केंद्र",
+                recColDoc: "डॉक्टर व विभाग",
+                recColDiag: "जाँच / समस्या",
+                recColStatus: "स्थिति (Status)",
+                recColAction: "कार्य",
+                feedbackTabDesc: "परामर्श के बाद डॉक्टर के नोट्स, दवाइयां व पर्ची यहाँ दर्ज होकर सहेजी जाती हैं।",
+                docLabel: "डॉक्टर / क्लिनिक का नाम",
+                hospLabel: "अस्पताल / स्वास्थ्य केंद्र",
+                notesLabel: "परामर्श नोट्स व दवाएं (Prescription / Advice)",
+                uploadLabel: "पर्ची या नई लैब रिपोर्ट अपलोड करें (PDF / Image)",
+                fileAttached: "फ़ाइल सफलतापूर्वक संलग्न की गई!",
+                saveRecordBtn: "रिकॉर्ड में सहेजें (Save to Records)",
+                saveSuccess: "फीडबैक एवं प्रिस्क्रिप्शन रिकॉर्ड सफलतापूर्वक माय रिकॉर्ड्स टैब में सहेज दिया गया है!",
+                telemedModalTitle: "eSanjeevani राष्ट्रीय टेली-कंसल्टेशन सेवा",
+                telemedSendingText: "आपकी मेडिकल रिपोर्ट व पास्ट टाइमलाइन e-Sanjeevani डॉक्टर पोर्टल पर भेजी जा रही है...",
+                doctorSignBtn: "डॉक्टर प्रिस्क्रिप्शन स्वीकार करें एवं रिकॉर्ड में सेव करें",
+                botQuestions: [
+                    { q: "नमस्ते! मुझे बताएं, आज आपको क्या समस्या महसूस हो रही है? (आप अपनी लैब/ब्लड रिपोर्ट भी अटैच कर सकते हैं)", buttons: ["तेज सिरदर्द और बुखार", "पेट दर्द", "खांसी-जुकाम", "🌿 आयुष डॉक्टर से बात करनी है", "📎 रिपोर्ट अटैच करें"] },
+                    { q: "यह समस्या आपको कब से है?", buttons: ["आज सुबह से", "2 दिनों से", "1 हफ्ते से"] },
+                    { q: "आपकी नई पर्ची तैयार है! आप एलोपैथिक (e-Sanjeevani) अथवा आयुष (आयुर्वेदिक डॉक्टर) से ऑनलाइन परामर्श ले सकते हैं।", buttons: ["रिपोर्ट प्रिंट करें", "e-Sanjeevani डॉक्टर", "🌿 आयुष आयुर्वेदिक डॉक्टर"] }
+                ]
+            },
+            en: {
+                navAbout: "About Project",
+                navArch: "Architecture Diagram",
+                navFeat: "Key Features",
+                navHome: "Home",
+                ctaTreatment: "Let's Go For Treatment",
+                heroBadge: "Smart, Secure & Instant Healthcare Platform",
+                heroHeading1: "Comprehensive & Precise",
+                heroHeading2: "Digital Medical Summary:",
+                heroHeading3: "\"Swasthya Saaransh\"",
+                heroDesc: "Eliminate long queues and missing physical reports! Instant consultations via AI chatbot, voice intake, smart OCR clinical report reader, and integrated Allopathy & AYUSH doctor networks.",
+                btnStartTreatment: "Let's Go For Treatment",
+                btnViewArch: "View System Architecture",
+                statPaperless: "Paperless Prescription",
+                statOcr: "Smart OCR Speed",
+                statOpd: "Allopathy + AYUSH OPD",
+                archCardTitle: "Digital Health Network",
+                archCardSub: "Verified Healthcare Automation",
+                boxBotTitle: "AI Intake Chatbot",
+                boxBotDesc: "Record symptoms via text, touch & voice",
+                boxOcrTitle: "Smart OCR Engine",
+                boxOcrDesc: "Instant extraction of lab and blood tests",
+                boxTeleTitle: "e-Sanjeevani OPD",
+                boxTeleDesc: "Consult allopathic medical specialists",
+                boxAyushTitle: "AYUSH Doctor Desk",
+                boxAyushDesc: "Holistic ayurvedic consultations & herbs",
+                btnPortalAccess: "Log In to Health Portal",
+                archTag: "System Architecture & Data Flow",
+                archHeading: "How Swasthya Saaransh Works",
+                archSub: "End-to-end intelligent workflow from citizen intake to doctor prescription and secure archival.",
+                step1Title: "Authentication (Auth)",
+                step1Desc: "Login via ABHA or ID number with secure SMS OTP",
+                step2Title: "AI Intake & OCR",
+                step2Desc: "Voice intake, conversational symptoms, or lab report upload",
+                step3Title: "Digital Token & Slip",
+                step3Desc: "Instant verified referral slip with active queue token",
+                path4ATag: "Path 4A • Allopathy Option",
+                path4ATitle: "e-Sanjeevani Teleconsultation",
+                path4ADesc: "Consult allopathic doctors directly online with digital e-signatures.",
+                path4BTag: "Path 4B • AYUSH Option",
+                path4BTitle: "AYUSH Ayurvedic Tele-OPD",
+                path4BDesc: "Herbal and dosha evaluation by certified national ayurvedic practitioners.",
+                step5Title: "Step 5: Secure Medical Archival (My Past Records)",
+                step5Desc: "Every encounter is securely catalogued with unique offline-ready QR codes.",
+                btnTryNow: "Try Prototype",
+                featTag: "Capabilities",
+                featHeading: "Key System Features",
+                feat1Title: "Multimodal Intake (Voice & Chat)",
+                feat1Desc: "Patients can easily register complaints via vernacular speech, text typing, or intelligent chips.",
+                feat2Title: "Smart OCR Clinical Parser",
+                feat2Desc: "Automatically reads laboratory metrics (Hb, Sugar, Platelets, TLC) from photos and embeds them into clinical summaries.",
+                feat3Title: "Encrypted Offline QR Slip",
+                feat3Desc: "Clinicians can review entire past timelines offline with zero internet dependency using QR scans.",
+                bottomTitle: "Ready for a seamless digital healthcare experience?",
+                bottomDesc: "Quickly assess your clinical complaints and consult registered medical specialists digitally.",
+                footerCopy: "© 2026 Swasthya Saaransh Project Portal. All rights reserved.",
+                portalTitle: "Swasthya Saaransh – Smart Healthcare Portal",
+                portalSubtitle: "Integrated Smart Intake, e-Sanjeevani, AYUSH Tele-consult & Records",
+                loginTitle: "Citizen Secure Authentication",
+                loginDesc: "Authenticate via your ABHA number or ID Card",
+                otpLabel: "Enter Mobile / ID OTP",
+                noOtpText: "Didn't receive OTP?",
+                resendText: "Resend",
+                sendOtpBtn: "Send OTP",
+                verifyOtpBtn: "Verify & Proceed",
+                noAbhaText: "Don't have an ABHA Card yet?",
+                createAbhaLink: "Create New ABHA Card Online (Govt Portal)",
+                liveTokenLabel: "Active Token ID",
+                ageLabel: "Age:",
+                genderLabel: "Gender:",
+                bloodGroupLabel: "Blood Group:",
+                slipDateLabel: "Prescription Date:",
+                eSanjeevaniBtn: "e-Sanjeevani Allopathic Doctor",
+                ayushBtn: "AYUSH Ayurvedic Doctor",
+                tabIntake: "Smart Intake & Slip",
+                tabRecords: "My Past Records & Reports",
+                tabFeedback: "Consultation & Feedback Form",
+                botTitle: "AI Health Intake Chatbot",
+                botSubtitle: "Record symptoms via text, voice, chips & advanced OCR",
+                quickReplyLabel: "Suggested Replies:",
+                printBtn: "Print / Save PDF Slip",
+                slipTitle: "Swasthya Saaransh - Patient Intake & Clinical Referral Slip",
+                patName: "Patient Name:",
+                patAbha: "ABHA ID:",
+                chiefComplaint: "Chief Complaints & OCR Clinical Summary:",
+                pastTimelineHeading: "Past Medical Timeline & Reports",
+                scanQrHint: "Distinct QR code available for every past encounter report",
+                colDateToken: "Date / Token",
+                colFacility: "Facility & Doctor",
+                colDiagnosis: "Diagnosis",
+                colRx: "Prescription / Advice",
+                colQrRecord: "Record QR",
+                qrHeading: "Master Offline QR Code:",
+                qrDesc: "Scan to review entire patient profile, age, gender, active token & timeline.",
+                historyTitle: "My Past Records & Reports (Past Clinical Encounters)",
+                historySubtitle: "All your historical treatments, facilities, token numbers, and prescriptions",
+                patientLabel: "Patient:",
+                recColToken: "Token No.",
+                recColDate: "Date",
+                recColHosp: "Facility / Hospital",
+                recColDoc: "Doctor & Dept",
+                recColDiag: "Diagnosis",
+                recColStatus: "Status",
+                recColAction: "Action",
+                feedbackTabDesc: "Doctor's consultation notes, advice and prescriptions are saved here.",
+                docLabel: "Doctor / Clinic Name",
+                hospLabel: "Hospital / Healthcare Facility",
+                notesLabel: "Prescriptions / Clinical Advice",
+                uploadLabel: "Upload Prescription Slip or Lab Report (PDF / Image)",
+                fileAttached: "File attached successfully!",
+                saveRecordBtn: "Save to Records",
+                saveSuccess: "Feedback & prescription saved into My Records tab successfully!",
+                telemedModalTitle: "eSanjeevani National Teleconsultation Service",
+                telemedSendingText: "Transferring medical report & past timeline to Doctor Desk...",
+                doctorSignBtn: "Accept Doctor Prescription & Save to Records",
+                botQuestions: [
+                    { q: "Hello! What symptoms are you experiencing today? (You can also upload a lab report)", buttons: ["Severe Headache & Fever", "Stomach Ache", "Cough & Cold", "🌿 Consult AYUSH Doctor", "📎 Attach Report"] },
+                    { q: "How long have you had this issue?", buttons: ["Since morning", "Past 2 days", "Over a week"] },
+                    { q: "Your slip is generated! You can consult Allopathic (e-Sanjeevani) or AYUSH Ayurvedic Doctor directly.", buttons: ["Print Slip", "e-Sanjeevani Doctor", "🌿 AYUSH Ayurvedic Doctor"] }
+                ]
+            }
+        };
+
+        let patientProfile = {
+            nameHi: "राहुल वर्मा",
+            nameEn: "Rahul Verma",
+            abhaId: "91-4523-8891-1209",
+            age: 32,
+            genderHi: "पुरुष",
+            genderEn: "Male",
+            bloodGroup: "B+",
+            phone: "+91 98765-43210",
+            address: "मकान नं. 45, गांधी नगर, वार्ड 12",
+            district: "बस्ती",
+            state: "उत्तर प्रदेश",
+            pincode: "272001"
+        };
+
+        let patientPastRecords = [
+            {
+                token: "#ABHA-TK-5512",
+                date: "12 May 2026",
+                facility: "जिला चिकित्सालय, बस्ती",
+                doctor: "डॉ. आर. के. निगम (MD, Allopathy)",
+                diagnosis: "वायरल ब्रोंकाइटिस (Viral Bronchitis)",
+                treatment: "Azithromycin 500mg, Paracetamol",
+                status: "Completed",
+                hasAttachment: true
+            },
+            {
+                token: "#ABHA-TK-3190",
+                date: "18 Jan 2026",
+                facility: "राजकीय आयुष औषधालय, बस्ती",
+                doctor: "वैद्य एस. के. त्रिपाठी (BAMS, AYUSH)",
+                diagnosis: "एक्यूट अम्लपित्त (Hyperacidity / Gastritis)",
+                treatment: "अविपत्तिकर चूर्ण, कामदुधा रस",
+                status: "Completed",
+                hasAttachment: false
+            }
+        ];
+
+        let currentLang = 'hi';
+        let loginMode = 'abha';
+        let generatedOtp = null;
+        let timerInterval = null;
+        let activeToken = "#ABHA-TK-" + Math.floor(1000 + Math.random() * 9000);
+        let chatStep = 0;
+        let isListening = false;
+        let recognition = null;
+        let pendingFeedbackExists = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSpeech();
+            document.getElementById('live-token-badge').innerText = activeToken;
+            document.getElementById('report-token-txt').innerText = activeToken;
+            document.getElementById('feedback-active-token').innerText = `टोकन: ${activeToken}`;
+            document.getElementById('tele-tok-txt').innerText = activeToken;
+            document.getElementById('ayush-tok-txt').innerText = activeToken;
+            
+            setCurrentPrescriptionDate();
+            syncProfileUI();
+            renderPastTimelineOnSlip();
+            renderPastRecordsTable();
+        });
+
+        function goToAppLogin() {
+            document.getElementById('overview-view').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToOverview() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('overview-view').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setCurrentPrescriptionDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const formattedDate = now.toLocaleDateString(currentLang === 'hi' ? 'hi-IN' : 'en-US', options);
+            document.getElementById('slip-date-txt').innerText = formattedDate;
+        }
+
+        function switchLoginMode(mode) {
+            loginMode = mode;
+            const tabAbha = document.getElementById('tab-login-abha');
+            const tabAadhaar = document.getElementById('tab-login-aadhaar');
+            const label = document.getElementById('input-mode-label');
+            const input = document.getElementById('auth-id-input');
+            const icon = document.getElementById('input-mode-icon');
+            const helper = document.getElementById('input-mode-helper');
+
+            if (mode === 'abha') {
+                tabAbha.className = "flex-1 py-2 rounded-xl bg-white text-teal-800 shadow-sm transition";
+                tabAadhaar.className = "flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition";
+                label.innerText = (currentLang === 'hi') ? "ABHA नंबर दर्ज करें" : "Enter ABHA Number";
+                input.value = "91-4523-8891-1209";
+                input.placeholder = "91-XXXX-XXXX-XXXX";
+                icon.className = "fa-solid fa-fingerprint";
+                helper.innerText = (currentLang === 'hi') ? "उदा. 14 अंकों का ABHA नंबर" : "e.g. 14-digit ABHA Number";
+            } else {
+                tabAadhaar.className = "flex-1 py-2 rounded-xl bg-white text-teal-800 shadow-sm transition";
+                tabAbha.className = "flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition";
+                label.innerText = (currentLang === 'hi') ? "पहचान संख्या दर्ज करें" : "Enter ID Number";
+                input.value = "";
+                input.placeholder = "XXXX-XXXX-XXXX";
+                icon.className = "fa-solid fa-id-card";
+                helper.innerText = (currentLang === 'hi') ? "पंजीकृत मोबाइल नंबर पर सुरक्षित OTP भेजा जाएगा" : "Secure OTP will be sent to registered mobile";
+            }
+        }
+
+        function toggleLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.global-lang-select').forEach(sel => {
+                sel.value = lang;
+            });
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[lang] && dict[lang][key]) {
+                    el.innerText = dict[lang][key];
+                }
+            });
+            syncProfileUI();
+            setCurrentPrescriptionDate();
+            if (!document.getElementById('main-portal').classList.contains('hidden')) {
+                startChatbot();
+                renderPastTimelineOnSlip();
+                renderPastRecordsTable();
+            }
+        }
+
+        function syncProfileUI() {
+            const currentName = currentLang === 'hi' ? patientProfile.nameHi : patientProfile.nameEn;
+            const currentGender = currentLang === 'hi' ? patientProfile.genderHi : patientProfile.genderEn;
+            const initial = currentLang === 'hi' ? currentName.charAt(0) : currentName.charAt(0).toUpperCase();
+
+            document.querySelectorAll('.user-name-display').forEach(el => el.innerText = currentName);
+            const avatar = document.getElementById('user-avatar-char');
+            if (avatar) avatar.innerText = initial;
+
+            document.getElementById('bar-age-val').innerText = `${patientProfile.age} ${currentLang === 'hi' ? 'वर्ष' : 'Yrs'}`;
+            document.getElementById('bar-gender-val').innerText = currentGender;
+            document.getElementById('slip-age-txt').innerText = `${patientProfile.age} ${currentLang === 'hi' ? 'वर्ष (Years)' : 'Years'}`;
+            document.getElementById('slip-gender-txt').innerText = `${currentGender} (${patientProfile.genderEn})`;
+            document.getElementById('slip-blood-txt').innerText = `${patientProfile.bloodGroup} Positive`;
+            document.getElementById('slip-abha-val').innerText = patientProfile.abhaId;
+            document.getElementById('bar-abha-val').innerText = patientProfile.abhaId;
+
+            document.getElementById('prof-name').value = currentName;
+            document.getElementById('prof-abha').value = patientProfile.abhaId;
+            document.getElementById('prof-age').value = patientProfile.age;
+            document.getElementById('prof-gender').value = patientProfile.genderHi;
+            document.getElementById('prof-blood').value = patientProfile.bloodGroup;
+            document.getElementById('prof-phone').value = patientProfile.phone;
+            document.getElementById('prof-address').value = patientProfile.address;
+            document.getElementById('prof-district').value = patientProfile.district;
+            document.getElementById('prof-state').value = patientProfile.state;
+            document.getElementById('prof-pincode').value = patientProfile.pincode;
+        }
+
+        function openProfileModal() {
+            syncProfileUI();
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function handleProfileUpdate(e) {
+            e.preventDefault();
+            const updatedName = document.getElementById('prof-name').value.trim();
+            patientProfile.nameHi = updatedName;
+            patientProfile.nameEn = updatedName;
+            patientProfile.age = document.getElementById('prof-age').value;
+            patientProfile.genderHi = document.getElementById('prof-gender').value;
+            patientProfile.genderEn = document.getElementById('prof-gender').value === 'महिला' ? 'Female' : 'Male';
+            patientProfile.bloodGroup = document.getElementById('prof-blood').value;
+            patientProfile.phone = document.getElementById('prof-phone').value;
+            patientProfile.address = document.getElementById('prof-address').value;
+            patientProfile.district = document.getElementById('prof-district').value;
+            patientProfile.state = document.getElementById('prof-state').value;
+            patientProfile.pincode = document.getElementById('prof-pincode').value;
+
+            syncProfileUI();
+            renderQRCode();
+            closeProfileModal();
+            alert(currentLang === 'hi' ? 'प्रोफाइल सफलतापूर्वक अपडेट कर दी गई है!' : 'Profile updated successfully!');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2";
+            });
+
+            if (tabId === 'intake') {
+                document.getElementById('intake-view').classList.remove('hidden');
+                document.getElementById('tab-btn-intake').className = "tab-btn bg-teal-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2";
+            } else if (tabId === 'records') {
+                document.getElementById('records-view').classList.remove('hidden');
+                document.getElementById('tab-btn-records').className = "tab-btn bg-teal-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2";
+            } else if (tabId === 'feedback') {
+                document.getElementById('feedback-view').classList.remove('hidden');
+                document.getElementById('tab-btn-feedback').className = "tab-btn bg-teal-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2";
+            }
+        }
+
+        function renderPastTimelineOnSlip() {
+            const tbody = document.getElementById('slip-history-rows');
+            tbody.innerHTML = '';
+            patientPastRecords.forEach((rec, idx) => {
+                const tr = document.createElement('tr');
+                const qrId = `past-qr-${idx}`;
+                tr.innerHTML = `
+                    <td class="p-1.5 font-mono text-slate-700">
+                        <b>${rec.date}</b><br><span class="text-teal-700 text-[10px]">${rec.token}</span>
+                    </td>
+                    <td class="p-1.5">
+                        <b class="text-slate-800">${rec.facility}</b><br><span class="text-slate-500">${rec.doctor}</span>
+                    </td>
+                    <td class="p-1.5 font-semibold text-slate-800">${rec.diagnosis}</td>
+                    <td class="p-1.5 text-slate-600">${rec.treatment}</td>
+                    <td class="p-1.5 text-center">
+                        <div id="${qrId}" class="inline-block p-0.5 bg-white border border-slate-300 rounded shadow-xs" title="Scan to view clinical encounter"></div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                setTimeout(() => {
+                    const qrEl = document.getElementById(qrId);
+                    if (qrEl && !qrEl.hasChildNodes()) {
+                        new QRCode(qrEl, {
+                            text: JSON.stringify({
+                                token: rec.token,
+                                patient: currentLang === 'hi' ? patientProfile.nameHi : patientProfile.nameEn,
+                                age: patientProfile.age,
+                                date: rec.date,
+                                facility: rec.facility,
+                                diagnosis: rec.diagnosis,
+                                treatment: rec.treatment
+                            }),
+                            width: 38,
+                            height: 38,
+                            colorDark: "#1e293b",
+                            colorLight: "#ffffff"
+                        });
+                    }
+                }, 50);
+            });
+        }
+
+        function renderPastRecordsTable() {
+            const tbody = document.getElementById('past-records-table-body');
+            tbody.innerHTML = '';
+            document.getElementById('record-count-badge').innerText = patientPastRecords.length;
+
+            patientPastRecords.forEach(rec => {
+                const tr = document.createElement('tr');
+                const isPending = rec.status === "Pending Feedback";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-teal-700">${rec.token}</td>
+                    <td class="p-3 text-slate-600">${rec.date}</td>
+                    <td class="p-3 font-semibold text-slate-800">${rec.facility}</td>
+                    <td class="p-3 text-slate-600">${rec.doctor}</td>
+                    <td class="p-3 font-medium text-slate-800">${rec.diagnosis}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isPending ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+                            ${isPending ? (currentLang==='hi' ? 'फीडबैक लंबित' : 'Pending Feedback') : (currentLang==='hi' ? 'संपन्न' : 'Completed')}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        ${isPending ? 
+                            `<button onclick="openFeedbackForToken('${rec.token}')" class="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded-lg shadow">
+                                ${currentLang==='hi' ? 'फीडबैक भरें' : 'Fill Feedback'}
+                             </button>` : 
+                            `<button onclick="alert('डिजिटल पर्ची सत्यापित है। टोकन: ' + '${rec.token}')" class="text-slate-500 hover:text-teal-700 font-bold text-xs">
+                                <i class="fa-solid fa-eye"></i> ${currentLang==='hi' ? 'देखें' : 'View'}
+                             </button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openFeedbackForToken(token) {
+            document.getElementById('feedback-active-token').innerText = `टोकन: ${token}`;
+            switchTab('feedback');
+        }
+
+        function handlePrintSlip() {
+            setCurrentPrescriptionDate();
+            window.print();
+            if (!pendingFeedbackExists) {
+                pendingFeedbackExists = true;
+                document.getElementById('pending-feedback-badge').classList.remove('hidden');
+
+                patientPastRecords.unshift({
+                    token: activeToken,
+                    date: currentLang === 'hi' ? "आज" : "Today",
+                    facility: currentLang === 'hi' ? "वॉक-इन OPD केंद्र" : "Walk-in OPD Center",
+                    doctor: currentLang === 'hi' ? "परामर्श प्रतीक्षारत" : "Consultation Awaited",
+                    diagnosis: document.getElementById('rep-complaint').innerText,
+                    treatment: "...",
+                    status: "Pending Feedback",
+                    hasAttachment: false
+                });
+
+                renderPastRecordsTable();
+            }
+        }
+
+        function openAyushModal() {
+            const modal = document.getElementById('ayush-modal');
+            const transferStep = document.getElementById('ayush-step-transfer');
+            const connectedStep = document.getElementById('ayush-step-connected');
+            
+            document.getElementById('ayush-complaint-txt').innerText = document.getElementById('rep-complaint').innerText;
+            transferStep.classList.remove('hidden');
+            connectedStep.classList.add('hidden');
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                transferStep.classList.add('hidden');
+                connectedStep.classList.remove('hidden');
+            }, 1600);
+        }
+
+        function closeAyushModal() {
+            document.getElementById('ayush-modal').classList.add('hidden');
+        }
+
+        function completeAyushConsultation() {
+            closeAyushModal();
+            switchTab('feedback');
+            document.getElementById('doctor-filled-indicator').classList.remove('hidden');
+            document.getElementById('doc-indicator-text').innerHTML = "<b>आयुष (AYUSH) ऑनलाइन कंसल्टेशन:</b> वैद्य देवेन्द्र शास्त्री द्वारा आयुर्वेदिक प्रिस्क्रिप्शन सफलतापूर्वक सत्यापित किया गया।";
+            
+            document.getElementById('fb-doc-name').value = "वैद्य देवेन्द्र शास्त्री (MD - आयुर्वेद)";
+            document.getElementById('fb-hospital-name').value = "स्वास्थ्य सारांश आयुष आरोग्य केंद्र";
+            document.getElementById('fb-notes').value = "सुदर्शन घनवटी (1 गोली BD), गिलोय क्वाथ (20ml BD), सुपाच्य आहार एवं विश्राम सलाह दी गई।";
+
+            const targetRec = patientPastRecords.find(r => r.token === activeToken);
+            if (targetRec) {
+                targetRec.doctor = "वैद्य देवेन्द्र शास्त्री (AYUSH)";
+                targetRec.facility = "स्वास्थ्य सारांश आयुष टेली-OPD";
+                targetRec.treatment = "सुदर्शन घनवटी, गिलोय क्वाथ (आयुर्वेदिक)";
+                targetRec.status = "Completed";
+                targetRec.hasAttachment = true;
+            } else {
+                patientPastRecords.unshift({
+                    token: activeToken,
+                    date: currentLang === 'hi' ? "आज (आयुष OPD)" : "Today (AYUSH OPD)",
+                    facility: "स्वास्थ्य सारांश आयुष टेली-OPD",
+                    doctor: "वैद्य देवेन्द्र शास्त्री (AYUSH)",
+                    diagnosis: document.getElementById('rep-complaint').innerText,
+                    treatment: "सुदर्शन घनवटी, गिलोय क्वाथ (आयुर्वेदिक)",
+                    status: "Completed",
+                    hasAttachment: true
+                });
+            }
+
+            document.getElementById('pending-feedback-badge').classList.add('hidden');
+            pendingFeedbackExists = false;
+            document.getElementById('fb-success-msg').classList.remove('hidden');
+
+            renderPastRecordsTable();
+            renderPastTimelineOnSlip();
+        }
+
+        function openTeleconsultationModal() {
+            const modal = document.getElementById('telemed-modal');
+            const transferStep = document.getElementById('tele-step-transfer');
+            const connectedStep = document.getElementById('tele-step-connected');
+            
+            document.getElementById('tele-complaint-txt').innerText = document.getElementById('rep-complaint').innerText;
+            document.getElementById('tele-meta-txt').innerText = `${patientProfile.age} वर्ष | ${patientProfile.genderHi}`;
+            transferStep.classList.remove('hidden');
+            connectedStep.classList.add('hidden');
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                transferStep.classList.add('hidden');
+                connectedStep.classList.remove('hidden');
+            }, 1600);
+        }
+
+        function closeTeleconsultationModal() {
+            document.getElementById('telemed-modal').classList.add('hidden');
+        }
+
+        function completeDoctorOnlineConsultation() {
+            closeTeleconsultationModal();
+            switchTab('feedback');
+            document.getElementById('doctor-filled-indicator').classList.remove('hidden');
+            document.getElementById('doc-indicator-text').innerHTML = "<b>e-Sanjeevani ऑनलाइन कंसल्टेशन:</b> डॉ. सुनील मेहता द्वारा यह एलोपैथिक प्रिस्क्रिप्शन सत्यापित किया गया।";
+            
+            document.getElementById('fb-doc-name').value = "डॉ. सुनील मेहता (MD, eSanjeevani OPD)";
+            document.getElementById('fb-hospital-name').value = "स्वास्थ्य सारांश टेलीमेडिसिन पोर्टल";
+            document.getElementById('fb-notes').value = "Tab Paracetamol 650mg SOS, ORS Solution twice daily, Rest for 2 days. E-Prescription digitally signed.";
+
+            const targetRec = patientPastRecords.find(r => r.token === activeToken);
+            if (targetRec) {
+                targetRec.doctor = "डॉ. सुनील मेहता (eSanjeevani)";
+                targetRec.facility = "स्वास्थ्य सारांश Tele-OPD";
+                targetRec.treatment = "Tab Paracetamol 650mg SOS, ORS Solution";
+                targetRec.status = "Completed";
+                targetRec.hasAttachment = true;
+            } else {
+                patientPastRecords.unshift({
+                    token: activeToken,
+                    date: currentLang === 'hi' ? "आज (e-Sanjeevani)" : "Today (e-Sanjeevani)",
+                    facility: "स्वास्थ्य सारांश Tele-OPD",
+                    doctor: "डॉ. सुनील मेहता (MD)",
+                    diagnosis: document.getElementById('rep-complaint').innerText,
+                    treatment: "Tab Paracetamol 650mg SOS, ORS Solution",
+                    status: "Completed",
+                    hasAttachment: true
+                });
+            }
+
+            document.getElementById('pending-feedback-badge').classList.add('hidden');
+            pendingFeedbackExists = false;
+            document.getElementById('fb-success-msg').classList.remove('hidden');
+
+            renderPastRecordsTable();
+            renderPastTimelineOnSlip();
+        }
+
+        function handleAuthAction(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('auth-id-input').value.trim();
+            const otpContainer = document.getElementById('otp-container');
+            const otpInput = document.getElementById('otp-input');
+
+            if (!inputVal) {
+                showAlert(loginMode === 'abha' ? 'कृपया ABHA नंबर दर्ज करें।' : 'कृपया पहचान संख्या दर्ज करें।', 'error');
+                return;
+            }
+
+            if (otpContainer.classList.contains('hidden')) {
+                sendSecureOtp();
+            } else {
+                if (otpInput.value.trim() === String(generatedOtp)) {
+                    showAlert('सत्यापन सफल!', 'success');
+                    clearInterval(timerInterval);
+                    setTimeout(() => {
+                        document.getElementById('login-section').classList.add('hidden');
+                        document.getElementById('main-portal').classList.remove('hidden');
+                        document.getElementById('user-badge').classList.remove('hidden');
+                        closeSmsToast();
+                        startChatbot();
+                        renderQRCode();
+                    }, 400);
+                } else {
+                    showAlert('अमान्य OTP! कृपया सही 6 अंकों का OTP डालें।', 'error');
+                    otpInput.focus();
+                }
+            }
+        }
+
+        function sendSecureOtp() {
+            generatedOtp = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('otp-container').classList.remove('hidden');
+            document.getElementById('btn-text').innerText = dict[currentLang].verifyOtpBtn;
+            showAlert('OTP आपके पंजीकृत मोबाइल नंबर पर भेज दिया गया है।', 'success');
+
+            document.getElementById('toast-otp-val').innerText = generatedOtp;
+            document.getElementById('sms-toast').classList.remove('translate-y-[-160%]');
+
+            startResendTimer();
+        }
+
+        function resendOtp() {
+            sendSecureOtp();
+        }
+
+        function startResendTimer() {
+            const resendBtn = document.getElementById('resend-btn');
+            const timerSpan = document.getElementById('resend-timer');
+            let countdown = 60;
+            resendBtn.disabled = true;
+            resendBtn.className = "font-bold text-slate-400 cursor-not-allowed";
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                countdown--;
+                timerSpan.innerText = countdown;
+                if (countdown <= 0) {
+                    clearInterval(timerInterval);
+                    resendBtn.disabled = false;
+                    resendBtn.className = "font-bold text-teal-600 hover:text-teal-800 cursor-pointer";
+                }
+            }, 1000);
+        }
+
+        function autoFillOtp() {
+            if (generatedOtp) {
+                document.getElementById('otp-input').value = generatedOtp;
+                closeSmsToast();
+            }
+        }
+
+        function closeSmsToast() {
+            document.getElementById('sms-toast').classList.add('translate-y-[-160%]');
+        }
+
+        function showAlert(msg, type) {
+            const alert = document.getElementById('auth-alert');
+            alert.classList.remove('hidden', 'bg-rose-50', 'text-rose-700', 'border-rose-200', 'bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+            if (type === 'error') {
+                alert.classList.add('bg-rose-50', 'text-rose-700', 'border', 'border-rose-200');
+                alert.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${msg}`;
+            } else {
+                alert.classList.add('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-200');
+                alert.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${msg}`;
+            }
+        }
+
+        function logout() {
+            window.location.reload();
+        }
+
+        function startChatbot() {
+            chatStep = 0;
+            document.getElementById('chat-stream').innerHTML = '';
+            showStep();
+        }
+
+        function showStep() {
+            const currentDialogue = dict[currentLang].botQuestions;
+            if (chatStep < currentDialogue.length) {
+                const item = currentDialogue[chatStep];
+                appendChat('bot', item.q);
+                renderButtons(item.buttons);
+            }
+        }
+
+        function appendChat(role, text) {
+            const stream = document.getElementById('chat-stream');
+            const row = document.createElement('div');
+            row.className = role === 'bot' ? "flex gap-2 items-start" : "flex gap-2 items-start justify-end";
+            row.innerHTML = `
+                <div class="p-2.5 rounded-xl text-xs max-w-[85%] ${role === 'bot' ? 'bg-white border text-slate-800 shadow-xs' : 'bg-teal-700 text-white shadow-xs'}">
+                    ${text}
+                </div>
+            `;
+            stream.appendChild(row);
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        function renderButtons(buttons) {
+            const container = document.getElementById('quick-buttons');
+            container.innerHTML = '';
+            buttons.forEach(b => {
+                const btn = document.createElement('button');
+                if (b.includes("आयुष") || b.includes("AYUSH")) {
+                    btn.className = "bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs px-2.5 py-1 rounded-lg transition font-bold flex items-center gap-1 shadow-xs";
+                } else if (b.includes("रिपोर्ट") || b.includes("Report") || b.includes("📎")) {
+                    btn.className = "bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 text-xs px-2.5 py-1 rounded-lg transition font-medium flex items-center gap-1 shadow-xs";
+                } else {
+                    btn.className = "bg-white hover:bg-teal-50 border border-slate-300 text-slate-700 text-xs px-2.5 py-1 rounded-lg transition font-medium";
+                }
+                btn.innerText = b;
+                btn.onclick = () => selectOption(b);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleSendText(e) {
+            e.preventDefault();
+            const input = document.getElementById('user-msg-input');
+            if (input.value.trim()) {
+                selectOption(input.value.trim());
+                input.value = '';
+            }
+        }
+
+        function selectOption(val) {
+            if (val === "📎 रिपोर्ट अटैच करें" || val === "📎 Attach Report") {
+                document.getElementById('ocr-file-input').click();
+                return;
+            }
+
+            appendChat('user', val);
+
+            if (val === "रिपोर्ट प्रिंट करें" || val === "Print Slip") {
+                handlePrintSlip();
+                return;
+            }
+            if (val === "e-Sanjeevani डॉक्टर" || val === "Consult Doctor Online") {
+                openTeleconsultationModal();
+                return;
+            }
+            if (val.includes("आयुष") || val.includes("AYUSH")) {
+                openAyushModal();
+                return;
+            }
+
+            if (chatStep === 0) {
+                document.getElementById('rep-complaint').innerText = val;
+                renderQRCode();
+            }
+            chatStep++;
+            setTimeout(showStep, 400);
+        }
+
+        // Upgraded OCR Pipeline with Dedicated OCR QR Generation
+        async function handleOCRDocumentUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            appendChat('user', `📎 <b>दस्तावेज़ संलग्न:</b> ${file.name}`);
+            
+            const pBar = document.getElementById('ocr-progress-bar');
+            const pText = document.getElementById('ocr-status-text');
+            const pPercent = document.getElementById('ocr-percentage');
+            
+            pBar.classList.remove('hidden');
+            pText.innerText = currentLang === 'hi' ? 'इमेज प्री-प्रोसेसिंग व डी-नॉइज़िंग...' : 'Pre-processing image...';
+            pPercent.innerText = '0%';
+
+            try {
+                const preprocessedImageData = await preprocessImageForOCR(file);
+                pText.innerText = currentLang === 'hi' ? 'OCR रिकॉग्निशन चल रहा है...' : 'Running OCR recognition...';
+
+                const result = await Tesseract.recognize(
+                    preprocessedImageData,
+                    'eng',
+                    {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const progress = Math.round((m.progress || 0) * 100);
+                                pPercent.innerText = `${progress}%`;
+                                pText.innerText = currentLang === 'hi' ? `क्लिनिकल डेटा स्कैन हो रहा है... (${progress}%)` : `Extracting clinical data... (${progress}%)`;
+                            }
+                        }
+                    }
+                );
+
+                pBar.classList.add('hidden');
+                event.target.value = '';
+
+                const extractedRaw = result.data.text.trim();
+                if (!extractedRaw || extractedRaw.length < 5) {
+                    appendChat('bot', currentLang === 'hi' 
+                        ? '⚠️ दस्तावेज़ से टेक्स्ट स्पष्ट नहीं पढ़ा जा सका। कृपया अच्छी रोशनी में खींची गई रिपोर्ट अपलोड करें।' 
+                        : '⚠️ Could not read clear text. Please upload a clear photo in good lighting.');
+                    return;
+                }
+
+                const parsedSummary = parseClinicalReport(extractedRaw);
+                
+                appendChat('bot', `
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-1.5 font-bold text-teal-800">
+                            <i class="fa-solid fa-file-circle-check"></i>
+                            <span>${currentLang === 'hi' ? 'स्मार्ट OCR रिपोर्ट विश्लेषण पूर्ण' : 'Smart OCR Analysis Complete'}</span>
+                        </div>
+                        <div class="bg-teal-50/70 p-2.5 rounded-lg border border-teal-200 text-slate-800 text-[11px] leading-relaxed">
+                            ${parsedSummary.htmlOutput}
+                        </div>
+                        <p class="text-[10px] text-slate-500 italic">इस रिपोर्ट का अलग एनक्रिप्टेड QR कोड लक्षण सेक्शन में जोड़ दिया गया है।</p>
+                    </div>
+                `);
+
+                const currentComplaint = document.getElementById('rep-complaint').innerText;
+                const updatedComplaint = `${currentComplaint} | [OCR रिपोर्ट निष्कर्ष]: ${parsedSummary.plainText}`;
+                document.getElementById('rep-complaint').innerText = updatedComplaint;
+                document.getElementById('ocr-badge-container').classList.remove('hidden');
+
+                renderOCRDocumentQRCode({
+                    sourceDocument: file.name,
+                    scanTimestamp: new Date().toISOString(),
+                    patientName: patientProfile.nameEn,
+                    token: activeToken,
+                    extractedData: parsedSummary.plainText
+                });
+
+                renderQRCode();
+
+                renderButtons([
+                    "🌿 आयुष आयुर्वेदिक डॉक्टर",
+                    "e-Sanjeevani डॉक्टर",
+                    "रिपोर्ट प्रिंट करें"
+                ]);
+
+            } catch (err) {
+                console.error("Advanced OCR Error: ", err);
+                pBar.classList.add('hidden');
+                appendChat('bot', currentLang === 'hi' 
+                    ? '❌ रिपोर्ट स्कैन करने में त्रुटि आई। कृपया फ़ाइल पुनः जांचें।' 
+                    : '❌ Error scanning report. Please verify image.');
+            }
+        }
+
+        function preprocessImageForOCR(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const scale = img.width < 1200 ? 1.5 : 1.0;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const d = imgData.data;
+
+                    for (let i = 0; i < d.length; i += 4) {
+                        const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                        const contrast = 1.35;
+                        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+                        const finalColor = Math.min(255, Math.max(0, factor * (gray - 128) + 128));
+
+                        d[i] = finalColor;
+                        d[i + 1] = finalColor;
+                        d[i + 2] = finalColor;
+                    }
+
+                    ctx.putImageData(imgData, 0, 0);
+                    resolve(canvas.toDataURL('image/jpeg', 0.95));
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function parseClinicalReport(text) {
+            const detectedParams = [];
+            const rules = [
+                { name: "Hemoglobin (Hb)", regex: /(?:hb|haemoglobin|hemoglobin)\s*[:=-]?\s*([\d.]+)\s*(g\/dl)?/i, unit: "g/dL" },
+                { name: "Blood Sugar", regex: /(?:glucose|sugar|fbs|rbs|ppbs)\s*[:=-]?\s*([\d.]+)\s*(mg\/dl)?/i, unit: "mg/dL" },
+                { name: "WBC (Total Leuko)", regex: /(?:wbc|tlc|total leukocyte count)\s*[:=-]?\s*([\d,]+)/i, unit: "/cumm" },
+                { name: "Platelet Count", regex: /(?:platelet|plt)\s*[:=-]?\s*([\d,.]+)/i, unit: "Lakhs/cumm" },
+                { name: "Blood Pressure", regex: /(?:bp|blood pressure)\s*[:=-]?\s*(\d{2,3}\/\d{2,3})\s*(mmhg)?/i, unit: "mmHg" },
+                { name: "S. Creatinine", regex: /(?:creatinine|serum creatinine)\s*[:=-]?\s*([\d.]+)\s*(mg\/dl)?/i, unit: "mg/dL" },
+                { name: "Bilirubin", regex: /(?:bilirubin|total bilirubin)\s*[:=-]?\s*([\d.]+)\s*(mg\/dl)?/i, unit: "mg/dL" },
+                { name: "SGPT / ALT", regex: /(?:sgpt|alt)\s*[:=-]?\s*([\d.]+)\s*(u\/l)?/i, unit: "U/L" }
+            ];
+
+            rules.forEach(rule => {
+                const match = text.match(rule.regex);
+                if (match && match[1]) {
+                    detectedParams.push(`<b>${rule.name}:</b> ${match[1]} ${rule.unit}`);
+                }
+            });
+
+            if (detectedParams.length > 0) {
+                return {
+                    htmlOutput: detectedParams.join(" | "),
+                    plainText: detectedParams.map(p => p.replace(/<[^>]+>/g, '')).join(", ")
+                };
+            } else {
+                const snippet = text.replace(/[\r\n\t]+/g, ' ').substring(0, 160);
+                return {
+                    htmlOutput: `<b>निकाले गए मुख्य बिंदु:</b> ${snippet}...`,
+                    plainText: snippet
+                };
+            }
+        }
+
+        function renderOCRDocumentQRCode(dataObj) {
+            const box = document.getElementById('ocr-qr-box');
+            const target = document.getElementById('ocr-doc-qr');
+            if (!target) return;
+
+            target.innerHTML = '';
+            box.classList.remove('hidden');
+
+            new QRCode(target, {
+                text: JSON.stringify(dataObj),
+                width: 68,
+                height: 68,
+                colorDark: "#92400e",
+                colorLight: "#ffffff"
+            });
+        }
+
+        function initSpeech() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRec) {
+                recognition = new SpeechRec();
+                recognition.onstart = () => {
+                    isListening = true;
+                    document.getElementById('mic-icon').className = "fa-solid fa-microphone text-rose-600";
+                    document.getElementById('voice-recording-dot').classList.remove('hidden');
+                };
+                recognition.onresult = (e) => {
+                    const text = e.results[0][0].transcript;
+                    if (text) selectOption(text);
+                };
+                recognition.onend = () => {
+                    isListening = false;
+                    document.getElementById('mic-icon').className = "fa-solid fa-microphone text-slate-600";
+                    document.getElementById('voice-recording-dot').classList.add('hidden');
+                };
+            }
+        }
+
+        function toggleVoiceInput() {
+            if (!recognition) return alert("ब्राउज़र वॉयस इनपुट को सपोर्ट नहीं करता। Chrome का प्रयोग करें।");
+            recognition.lang = (currentLang === 'hi') ? 'hi-IN' : 'en-US';
+            if (!isListening) recognition.start();
+            else recognition.stop();
+        }
+
+        function renderQRCode() {
+            const wrapper = document.getElementById('report-qr');
+            if (!wrapper) return;
+            wrapper.innerHTML = "";
+            new QRCode(wrapper, {
+                text: JSON.stringify({
+                    patient: currentLang === 'hi' ? patientProfile.nameHi : patientProfile.nameEn,
+                    age: patientProfile.age,
+                    gender: patientProfile.genderEn,
+                    bloodGroup: patientProfile.bloodGroup,
+                    token: activeToken,
+                    abha: patientProfile.abhaId,
+                    date: document.getElementById('slip-date-txt').innerText,
+                    complaint: document.getElementById('rep-complaint').innerText,
+                    telemedicineReady: true,
+                    ayushEnabled: true
+                }),
+                width: 70,
+                height: 70,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff"
+            });
+        }
+
+        function handleFileSelected(e) {
+            if (e.target.files.length > 0) {
+                document.getElementById('file-status').classList.remove('hidden');
+            }
+        }
+
+        function handleFeedbackSubmit(e) {
+            e.preventDefault();
+            const docName = document.getElementById('fb-doc-name').value.trim();
+            const hospName = document.getElementById('fb-hospital-name').value.trim();
+            const notes = document.getElementById('fb-notes').value.trim();
+
+            const targetRec = patientPastRecords.find(r => r.token === activeToken);
+            if (targetRec) {
+                targetRec.doctor = docName;
+                targetRec.facility = hospName;
+                targetRec.treatment = notes;
+                targetRec.status = "Completed";
+                targetRec.hasAttachment = true;
+            }
+
+            document.getElementById('pending-feedback-badge').classList.add('hidden');
+            pendingFeedbackExists = false;
+
+            document.getElementById('fb-success-msg').classList.remove('hidden');
+            renderPastRecordsTable();
+            renderPastTimelineOnSlip();
+
+            setTimeout(() => {
+                document.getElementById('fb-doc-name').value = '';
+                document.getElementById('fb-hospital-name').value = '';
+                document.getElementById('fb-notes').value = '';
+                document.getElementById('report-file-input').value = '';
+                document.getElementById('file-status').classList.add('hidden');
+                document.getElementById('fb-success-msg').classList.add('hidden');
+                document.getElementById('doctor-filled-indicator').classList.add('hidden');
+                switchTab('records');
+            }, 1800);
+        }
+    </script>
+</body>
+</html>
